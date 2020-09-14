@@ -10,6 +10,11 @@ const Types = () => (
       description="A Tree with only one subtree open at a time."
       examplePath="components/Tree/Types/TreeExclusiveExample"
     />
+    <ComponentExample
+      title="Sticky"
+      description="A Tree with that will collapse preceeding parent when there's not enough vertical space"
+      examplePath="components/Tree/Types/TreeStickyExample"
+    />
   </ExampleSection>
 );
 

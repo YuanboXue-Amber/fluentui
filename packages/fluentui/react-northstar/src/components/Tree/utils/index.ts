@@ -30,7 +30,7 @@ export const isAllGroupChecked = (items: TreeItemProps[], selectedItemIds: strin
 /**
  * Looks for the item inside the nested items array and returns its siblings.
  * @param {any[]} items The nested items array.
- * @param {string} itemId The id of the item to return the children of.
+ * @param {string} itemId The id of the item to return the siblings of.
  * @returns {any[]} The item siblings
  */
 export const getSiblings = (items: any[], itemId: string): any[] => {
@@ -39,6 +39,36 @@ export const getSiblings = (items: any[], itemId: string): any[] => {
 
     if (itemIndex > -1) {
       return removeItemAtIndex(items, itemIndex);
+    }
+
+    for (const item of items) {
+      if (item.items) {
+        const result = getSiblingsFn(item.items);
+
+        if (result) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  return getSiblingsFn(items);
+};
+
+/**
+ * Looks for the item inside the nested items array and returns its left siblings.
+ * @param {any[]} items The nested items array.
+ * @param {string} itemId The id of the item to return the left siblings of.
+ * @returns {any[]} The item's left siblings
+ */
+export const getLeftSiblings = (items: any[], itemId: string): any[] => {
+  function getSiblingsFn(items: any[]) {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+
+    if (itemIndex > -1) {
+      return [...items.slice(0, itemIndex)];
     }
 
     for (const item of items) {

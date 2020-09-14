@@ -41,6 +41,7 @@ import {
   TreeContext,
   TreeRenderContextValue,
   processItemsForSelection,
+  getLeftSiblings,
 } from './utils';
 
 export interface TreeProps extends UIComponentProps, ChildrenComponentProps {
@@ -99,6 +100,9 @@ export interface TreeProps extends UIComponentProps, ChildrenComponentProps {
 
   /** Whether or not tree items are selectable. */
   selectable?: boolean;
+
+  /** Whether or not the tree items are allowed to have sticky behavior */
+  sticky?: boolean;
 }
 
 export interface TreeItemForRenderProps {
@@ -188,6 +192,7 @@ export const Tree: ComponentWithAs<'div', TreeProps> &
     design,
     styles,
     variables,
+    sticky,
   } = props;
   const stableProps = useStableProps(props);
 
@@ -224,6 +229,65 @@ export const Tree: ComponentWithAs<'div', TreeProps> &
 
   const treeRef = React.useRef<HTMLElement>();
   const itemsRef = React.useRef(new Map<string, React.RefObject<HTMLElement>>());
+
+  // use state to remember the tree item that was clicked to expand on the previous rendering
+  const [newlyExpandedItemId, setNewlyExpandedItemId] = React.useState<string>();
+
+  // get the height between 2 tree items
+  const getVerticalOffsetBetweenItems = (id1: string, id2: string) => {
+    const item1Ref = itemsRef.current.get(id1);
+    if (!item1Ref || !item1Ref.current) {
+      return 0;
+    }
+    const item2Ref = itemsRef.current.get(id2);
+    if (!item2Ref || !item2Ref.current) {
+      return 0;
+    }
+    return Math.abs(item1Ref.current.offsetTop - item2Ref.current.offsetTop);
+  };
+
+  // If a tree is 'sticky', and a tree item was expanded,
+  // this useEffect will check if any overflow occurs,
+  // if so, the left siblings of the newly expanded tree items will be collapsed,
+  // until overflow disappears, or there's no more left sibling to collapse
+  React.useEffect(() => {
+    // only execute this when the component is:
+    // updated, have sticky prop, and have newlyExpandedItemId state set
+    if (!treeRef.current || !sticky || !newlyExpandedItemId) {
+      return;
+    }
+
+    let overflowHeight = treeRef.current.scrollHeight - treeRef.current.clientHeight;
+    if (overflowHeight > 0) {
+      // oveflow occured, need to collapse newlyExpandedItem's left siblings
+      const newlyExpandedItem = itemsRef.current.get(newlyExpandedItemId);
+      if (!newlyExpandedItem || !newlyExpandedItem.current) {
+        return;
+      }
+
+      const leftSiblings = getLeftSiblings(stableProps.current.items, newlyExpandedItemId);
+      const siblingsToCollapse = [];
+      for (const sib of leftSiblings.reverse()) {
+        overflowHeight -= getVerticalOffsetBetweenItems(newlyExpandedItemId, sib.id);
+        siblingsToCollapse.push(sib.id);
+        if (overflowHeight <= 0) break;
+      }
+
+      if (siblingsToCollapse.length) {
+        // collapse all the necesssary left siblings
+        let nextActiveItemsIds = activeItemIds;
+        for (const id of siblingsToCollapse) {
+          const idIndex = nextActiveItemsIds.indexOf(id);
+          if (idIndex > -1) {
+            nextActiveItemsIds = removeItemAtIndex(nextActiveItemsIds, idIndex);
+          }
+        }
+        setActiveItemIdsState(nextActiveItemsIds);
+      }
+
+      setNewlyExpandedItemId(undefined);
+    }
+  }, [activeItemIds, newlyExpandedItemId, setActiveItemIdsState, stableProps, sticky]);
 
   const onFocusParent = React.useCallback(
     (parent: string) => {
@@ -287,6 +351,7 @@ export const Tree: ComponentWithAs<'div', TreeProps> &
         if (activeItemIdIndex > -1) {
           nextActiveItemsIds = removeItemAtIndex(currActiveItemIds, activeItemIdIndex);
         } else {
+          setNewlyExpandedItemId(id);
           if (exclusive) {
             siblings.some(sibling => {
               const activeSiblingIdIndex = currActiveItemIds.indexOf(sibling['id']);
@@ -496,6 +561,7 @@ Tree.propTypes = {
   defaultSelectedItemIds: customPropTypes.collectionShorthand,
   exclusive: PropTypes.bool,
   selectable: PropTypes.bool,
+  sticky: PropTypes.bool,
   items: customPropTypes.collectionObjectShorthand,
   onActiveItemIdsChange: PropTypes.func,
   onSelectedItemIdsChange: PropTypes.func,
