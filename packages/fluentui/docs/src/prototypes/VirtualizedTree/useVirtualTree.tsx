@@ -45,7 +45,7 @@ export function useVirtualTree(props: UseTreeOptions) {
       if (!firstChild) {
         return;
       }
-      stableSetFocusId(getItemById(id)?.childrenIds?.[0]);
+      stableSetFocusId(firstChild);
     },
     [getItemById, stableSetFocusId],
   );

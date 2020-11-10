@@ -60,6 +60,11 @@ export interface VirtualTreeProps extends UIComponentProps, ChildrenComponentPro
   itemSize: (index: number) => number;
 }
 
+export interface VirtualItemData {
+  visibleItemIds: string[];
+  createTreeItem: (id, style) => React.ReactElement<TreeItemProps> | null;
+}
+
 export const virtualTreeClassName = 'ui-virtualtree';
 
 export type VirtualTreeStylesProps = never;
@@ -129,17 +134,43 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
     [getItemById, registerItemRef, toggleItemActive, focusParent, siblingsExpand, focusFirstChild],
   );
 
-  // todo data typing
-  const getItemKey = React.useCallback((index: number, data) => {
-    const { getItemById, visibleItemIds } = data;
-    const id = visibleItemIds[index];
-    if (getItemById(id)) {
-      return id;
-    }
-    return index;
-  }, []);
+  const getItemKey = React.useCallback(
+    (index: number, data: VirtualItemData) => {
+      const { visibleItemIds } = data;
+      const id = visibleItemIds[index];
+      if (getItemById(id)) {
+        return id;
+      }
+      return index;
+    },
+    [getItemById],
+  );
 
-  // TODO react-window list has `direction` prop, it is in conflict with our focuszone direction prop
+  const createTreeItem = React.useCallback(
+    (id, style) => {
+      const item = getItemById(id);
+      if (item) {
+        const { expanded, parent, level, index, treeSize } = item;
+        return TreeItem.create(item.item, {
+          defaultProps: () =>
+            getA11yProps('item', {
+              style,
+              key: id,
+              expanded,
+              parent,
+              level,
+              index,
+              treeSize,
+              selectable: false,
+              renderItemTitle: item.item.renderItemTitle || renderItemTitle,
+            }),
+        });
+      }
+      return null;
+    },
+    [getA11yProps, getItemById, renderItemTitle],
+  );
+
   const element = (
     <TreeContext.Provider value={contextValue}>
       {getA11yProps.unstable_wrapWithFocusZone(
@@ -156,7 +187,7 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
             estimatedItemSize={estimatedItemSize}
             itemSize={itemSize}
             itemKey={getItemKey}
-            itemData={{ getItemById, visibleItemIds, getA11yProps, renderItemTitle }}
+            itemData={{ visibleItemIds, createTreeItem }}
             itemCount={visibleItemIds.length}
           >
             {ItemWrapper}
@@ -174,33 +205,12 @@ class ItemWrapper extends React.PureComponent<{
   index: number;
   isScrolling?: boolean;
   style: Object;
-  data: any; // todo
+  data: VirtualItemData;
 }> {
   render() {
     const { index, style, data } = this.props;
-    const { getItemById, visibleItemIds, getA11yProps, renderItemTitle } = data;
-
-    const id = visibleItemIds[index];
-    const item = getItemById(id);
-
-    if (item) {
-      const { expanded, parent, level, index, treeSize } = item;
-      return TreeItem.create(item.item, {
-        defaultProps: () =>
-          getA11yProps('item', {
-            style,
-            key: id,
-            expanded,
-            parent,
-            level,
-            index,
-            treeSize,
-            selectable: false,
-            renderItemTitle: item.item.renderItemTitle || renderItemTitle,
-          }),
-      });
-    }
-    return null;
+    const { visibleItemIds, createTreeItem } = data;
+    return createTreeItem(visibleItemIds[index], style);
   }
 }
 
