@@ -27,8 +27,8 @@ import {
   TreeItemProps,
 } from '@fluentui/react-northstar';
 import { TreeContext, TreeRenderContextValue } from '@fluentui/react-northstar/src/components/Tree/context';
-import { useTree } from '@fluentui/react-northstar/src/components/Tree/hooks/useTree';
 import { VariableSizeList } from 'react-window';
+import { useVirtualTree } from './useVirtualTree';
 
 export interface VirtualTreeProps extends UIComponentProps, ChildrenComponentProps {
   /** Accessibility behavior if overridden by the user. */
@@ -39,6 +39,9 @@ export interface VirtualTreeProps extends UIComponentProps, ChildrenComponentPro
 
   /** Initial activeItemIds value. */
   defaultActiveItemIds?: string[];
+
+  /** Only allow one subtree to be expanded at a time. */
+  exclusive?: boolean;
 
   /** Shorthand array of props for Tree. */
   items?: ObjectShorthandCollection<TreeItemProps>;
@@ -110,7 +113,8 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
     focusParent,
     focusFirstChild,
     siblingsExpand,
-  } = useTree(props);
+    listRef,
+  } = useVirtualTree(props);
 
   const contextValue: TreeRenderContextValue = React.useMemo(
     () => ({
@@ -147,6 +151,7 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
           })}
         >
           <VariableSizeList
+            ref={listRef}
             height={height}
             estimatedItemSize={estimatedItemSize}
             itemSize={itemSize}
