@@ -1411,6 +1411,15 @@
     classnames "^2.2.6"
     tslib "^1.10.0"
 
+"@fluentui/react-proptypes@^0.51.2":
+  version "0.51.2"
+  resolved "https://registry.yarnpkg.com/@fluentui/react-proptypes/-/react-proptypes-0.51.2.tgz#fdaabe70b60c9ac3bd2fe077bcd9f2711b0ff724"
+  integrity sha512-i/RsDnAQr/sfRg86pR2jj3ui4ltrQKCDVfoipPD5bSuaULYc3Duc2qp5WwQri7dp6/+5MxSy02LnDUHfo3vJOg==
+  dependencies:
+    "@babel/runtime" "^7.10.4"
+    lodash "^4.17.15"
+    prop-types "^15.7.2"
+
 "@gulp-sourcemaps/identity-map@1.X":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@gulp-sourcemaps/identity-map/-/identity-map-1.0.2.tgz#1e6fe5d8027b1f285dc0d31762f566bccd73d5a9"
