@@ -70,12 +70,19 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
   const { setStart, setEnd } = useTelemetry(VirtualTree.displayName, context.telemetry);
   setStart();
 
-  const { children, className, design, styles, variables, renderItemTitle } = props;
+  const {
+    children,
+    className,
+    design,
+    styles,
+    variables,
+    renderItemTitle,
+    height,
+    estimatedItemSize,
+    itemSize,
+  } = props;
 
   const ElementType = getElementType(props);
-  if (ElementType !== 'div') {
-    // TODO virtual tree only works with div because of react-window. Maybe we give console warn?
-  }
 
   const unhandledProps = useUnhandledProps(VirtualTree.handledProps, props);
 
@@ -132,18 +139,25 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
   const element = (
     <TreeContext.Provider value={contextValue}>
       {getA11yProps.unstable_wrapWithFocusZone(
-        <VariableSizeList
+        <ElementType
           {...getA11yProps('root', {
             className: classes.root,
             ...rtlTextContainer.getAttributes({ forElements: [children] }),
             ...unhandledProps,
           })}
-          itemKey={getItemKey}
-          itemData={{ getItemById, visibleItemIds, getA11yProps, renderItemTitle }}
-          itemCount={visibleItemIds.length}
         >
-          {ItemWrapper}
-        </VariableSizeList>,
+          <VariableSizeList
+            height={height}
+            estimatedItemSize={estimatedItemSize}
+            itemSize={itemSize}
+            itemKey={getItemKey}
+            itemData={{ getItemById, visibleItemIds, getA11yProps, renderItemTitle }}
+            itemCount={visibleItemIds.length}
+          >
+            {ItemWrapper}
+          </VariableSizeList>
+          ,
+        </ElementType>,
       )}
     </TreeContext.Provider>
   );
@@ -195,6 +209,9 @@ VirtualTree.propTypes = {
   defaultActiveItemIds: customPropTypes.collectionShorthand,
   items: customPropTypes.collectionObjectShorthand,
   renderItemTitle: PropTypes.func,
+  height: PropTypes.number,
+  estimatedItemSize: PropTypes.number,
+  itemSize: PropTypes.func,
 };
 
 VirtualTree.Item = TreeItem;
