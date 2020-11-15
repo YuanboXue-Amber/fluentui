@@ -78,17 +78,7 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
   const { setStart, setEnd } = useTelemetry(VirtualTree.displayName, context.telemetry);
   setStart();
 
-  const {
-    children,
-    className,
-    design,
-    styles,
-    variables,
-    renderItemTitle,
-    height,
-    estimatedItemSize,
-    itemSize,
-  } = props;
+  const { children, className, design, styles, variables, height, estimatedItemSize, itemSize } = props;
 
   const ElementType = getElementType(props);
 
@@ -115,9 +105,8 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
     getItemById,
     registerItemRef,
     toggleItemActive,
-    focusParent,
-    focusFirstChild,
-    siblingsExpand,
+    focusItemById,
+    expandSiblings,
     listRef,
   } = useVirtualTree(props);
 
@@ -126,12 +115,11 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
       getItemById,
       registerItemRef,
       toggleItemActive,
-      focusParent,
-      siblingsExpand,
-      focusFirstChild,
+      focusItemById,
+      expandSiblings,
       toggleItemSelect: _.noop,
     }),
-    [getItemById, registerItemRef, toggleItemActive, focusParent, siblingsExpand, focusFirstChild],
+    [getItemById, registerItemRef, toggleItemActive, focusItemById, expandSiblings],
   );
 
   const getItemKey = React.useCallback(
@@ -145,7 +133,6 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
     },
     [getItemById],
   );
-
   const createTreeItem = React.useCallback(
     (id, style) => {
       const item = getItemById(id);
@@ -154,21 +141,23 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
         return TreeItem.create(item.item, {
           defaultProps: () =>
             getA11yProps('item', {
-              style,
-              key: id,
-              expanded,
-              parent,
-              level,
-              index,
-              treeSize,
-              selectable: false,
-              renderItemTitle: item.item.renderItemTitle || renderItemTitle,
+              renderItemTitle: props.renderItemTitle,
             }),
+          overrideProps: {
+            style,
+            expanded,
+            parent,
+            key: id,
+            level,
+            index,
+            treeSize,
+            selectable: false,
+          },
         });
       }
       return null;
     },
-    [getA11yProps, getItemById, renderItemTitle],
+    [getA11yProps, getItemById, props.renderItemTitle],
   );
 
   const element = (

@@ -5,57 +5,62 @@ export function useVirtualTree(props: UseTreeOptions) {
   const baseTree = useTree(props);
   const {
     registerItemRef: baseRegisterItemRef,
-    siblingsExpand: baseSiblingsExpand,
+    expandSiblings: baseExpandSiblings,
     getItemById,
+    getItemRef,
     visibleItemIds,
   } = baseTree;
 
   const listRef = React.useRef();
-  const [focusId, setFocusId] = React.useState(null);
-  const stableSetFocusId = React.useCallback(id => setFocusId(id), []);
-  const removeFocusId = React.useCallback(() => setFocusId(null), []);
+  const focusIdRef = React.useRef<string>();
+
+  const focusItemById = React.useCallback(
+    (id: string) => {
+      if (id == null) {
+        return;
+      }
+
+      const itemRef = getItemRef(id);
+
+      // item is not mounted yet
+      if (itemRef == null) {
+        // set focusIdRef so item can be focused on mount; scroll to item
+        focusIdRef.current = id;
+        const focusIndex = visibleItemIds.indexOf(focusIdRef.current);
+        if (focusIndex >= 0) {
+          (listRef.current as any)?.scrollToItem(focusIndex, 'center');
+        }
+        return;
+      }
+
+      // item is mounted, set focus
+      if (getItemById(id)?.hasSubtree) {
+        itemRef.focus();
+      } else {
+        // when node is leaf, need to focus on the inner treeTitle
+        (itemRef.firstElementChild as HTMLElement)?.focus();
+      }
+    },
+    [getItemById, getItemRef, visibleItemIds],
+  );
 
   const registerItemRef = React.useCallback(
     (id: string, node: HTMLElement) => {
       baseRegisterItemRef(id, node);
-      if (node && focusId === id) {
-        node.focus();
-        if (getItemById(id)?.hasSubtree) {
-          node.focus();
-        } else {
-          // when node is leaf, need to focus on the inner treeTitle
-          (node?.firstElementChild as HTMLElement)?.focus();
-        }
-        removeFocusId();
+      if (node && focusIdRef.current === id) {
+        focusItemById(id);
+        focusIdRef.current = null;
       }
     },
-    [baseRegisterItemRef, focusId, getItemById, removeFocusId],
+    [baseRegisterItemRef, focusItemById],
   );
 
-  const focusParent = React.useCallback(
-    (parent: string) => {
-      stableSetFocusId(parent);
-    },
-    [stableSetFocusId],
-  );
-
-  const focusFirstChild = React.useCallback(
-    (id: string) => {
-      const firstChild = getItemById(id)?.childrenIds?.[0];
-      if (!firstChild) {
-        return;
-      }
-      stableSetFocusId(firstChild);
-    },
-    [getItemById, stableSetFocusId],
-  );
-
-  const siblingsExpand = React.useCallback(
+  const expandSiblings = React.useCallback(
     (e: React.KeyboardEvent, id: string) => {
-      baseSiblingsExpand(e, id);
-      stableSetFocusId(id);
+      baseExpandSiblings(e, id);
+      focusIdRef.current = id;
     },
-    [baseSiblingsExpand, stableSetFocusId],
+    [baseExpandSiblings],
   );
 
   React.useLayoutEffect(() => {
@@ -67,20 +72,19 @@ export function useVirtualTree(props: UseTreeOptions) {
      *  without useLayoutEffect, react window uses the itemCount before siblings are expanded, causing it to compute wrong scroll offset.
      *  with useLayoutEffect, the scrolling happens after the new itemCount passed into list as props. Therefore the computed scroll offset is correct.
      */
-    if (focusId != null) {
-      const focusIndex = visibleItemIds.indexOf(focusId);
+    if (focusIdRef.current != null && getItemRef(focusIdRef.current) == null) {
+      const focusIndex = visibleItemIds.indexOf(focusIdRef.current);
       if (focusIndex >= 0) {
         (listRef.current as any)?.scrollToItem(focusIndex, 'center');
       }
     }
-  }, [visibleItemIds, focusId]);
+  }, [getItemRef, visibleItemIds]);
 
   return {
     ...baseTree,
     registerItemRef,
-    focusParent,
-    focusFirstChild,
-    siblingsExpand,
+    focusItemById,
+    expandSiblings,
     listRef,
   };
 }
