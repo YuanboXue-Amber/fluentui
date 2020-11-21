@@ -16,15 +16,11 @@ export function useVirtualTree(props: UseTreeOptions) {
 
   const focusItemById = React.useCallback(
     (id: string) => {
-      if (id == null) {
-        return;
-      }
-
       const itemRef = getItemRef(id);
 
       // item is not mounted yet
       if (itemRef == null) {
-        // set focusIdRef so item can be focused on mount; scroll to item
+        // set focusIdRef so item can be focused on mount; then scroll to item
         focusIdRef.current = id;
         const focusIndex = visibleItemIds.indexOf(focusIdRef.current);
         if (focusIndex >= 0) {
@@ -37,7 +33,7 @@ export function useVirtualTree(props: UseTreeOptions) {
       if (getItemById(id)?.hasSubtree) {
         itemRef.focus();
       } else {
-        // when node is leaf, need to focus on the inner treeTitle
+        // when tree item is leaf, need to focus on the inner treeTitle
         (itemRef.firstElementChild as HTMLElement)?.focus();
       }
     },
@@ -48,11 +44,17 @@ export function useVirtualTree(props: UseTreeOptions) {
     (id: string, node: HTMLElement) => {
       baseRegisterItemRef(id, node);
       if (node && focusIdRef.current === id) {
-        focusItemById(id);
+        // focus on this tree item
+        if (getItemById(id)?.hasSubtree) {
+          node.focus();
+        } else {
+          // when node is leaf, need to focus on the inner treeTitle
+          (node.firstElementChild as HTMLElement)?.focus();
+        }
         focusIdRef.current = null;
       }
     },
-    [baseRegisterItemRef, focusItemById],
+    [baseRegisterItemRef, getItemById],
   );
 
   const expandSiblings = React.useCallback(

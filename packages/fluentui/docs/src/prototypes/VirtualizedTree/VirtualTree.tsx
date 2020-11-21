@@ -133,6 +133,7 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
     },
     [getItemById],
   );
+
   const createTreeItem = React.useCallback(
     (id, style) => {
       const item = getItemById(id);
@@ -181,7 +182,6 @@ export const VirtualTree: ComponentWithAs<'div', VirtualTreeProps> &
           >
             {ItemWrapper}
           </VariableSizeList>
-          ,
         </ElementType>,
       )}
     </TreeContext.Provider>
