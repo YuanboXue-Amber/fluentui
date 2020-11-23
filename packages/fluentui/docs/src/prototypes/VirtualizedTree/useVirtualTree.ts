@@ -18,7 +18,7 @@ export interface UseVirtualTreeResult extends UseTreeResult {
   listRef: React.MutableRefObject<any>;
 }
 
-export function useVirtualTree(props: UseVirtualTreeOptions) {
+export function useVirtualTree(props: UseVirtualTreeOptions): UseVirtualTreeResult {
   const baseTree = useTree(props);
   const {
     registerItemRef: baseRegisterItemRef,
