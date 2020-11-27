@@ -25,7 +25,7 @@ import { VariableSizeList, VariableSizeListProps, ListChildComponentProps } from
 
 export interface VirtualTreeProps
   extends Omit<TreeProps, 'selectedItemIds' | 'defaultSelectedItemIds' | 'onSelectedItemIdsChange' | 'selectable'>,
-    Omit<VariableSizeListProps, 'children'> {}
+    Pick<VariableSizeListProps, 'itemSize' | 'estimatedItemSize' | 'height'> {}
 
 export interface VirtualItemData {
   visibleItemIds: string[];

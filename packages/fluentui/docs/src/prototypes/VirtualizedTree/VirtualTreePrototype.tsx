@@ -1,12 +1,22 @@
 import * as React from 'react';
-import CustomTreeTitle from './CustomTreeTitle';
+import { TriangleDownIcon, TreeTitleProps, TriangleEndIcon } from '@fluentui/react-northstar';
 import getItems from './itemsGenerator';
 import { VirtualTree } from './VirtualTree';
 
 const items = getItems();
 
+const CustomTreeTitle = (
+  Component: React.ElementType<TreeTitleProps>,
+  { content, expanded, hasSubtree, ...restProps }: TreeTitleProps,
+) => (
+  <Component expanded={expanded} hasSubtree={hasSubtree} {...restProps}>
+    {hasSubtree && (expanded ? <TriangleDownIcon /> : <TriangleEndIcon />)}
+    {content}
+  </Component>
+);
+
 const VirtualizedTreePrototype = () => {
-  const getItemSize = React.useCallback((index: number) => 20, []);
+  const getItemSize = React.useCallback(index => 20, []);
 
   return (
     <VirtualTree
