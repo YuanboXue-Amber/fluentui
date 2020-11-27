@@ -1,17 +1,7 @@
 import * as React from 'react';
-import { useTree, UseTreeResult, TreeItemProps, ObjectShorthandCollection } from '@fluentui/react-northstar';
+import { useTree, UseTreeResult, UseTreeOptions } from './useTree';
 
-export interface UseVirtualTreeOptions {
-  /** Shorthand array of props for Tree. */
-  items?: ObjectShorthandCollection<TreeItemProps>;
-
-  /** Ids of expanded items. */
-  activeItemIds?: string[];
-  /** Initial activeItemIds value. */
-  defaultActiveItemIds?: string[];
-  /** Only allow one subtree to be expanded at a time. */
-  exclusive?: boolean;
-}
+export interface UseVirtualTreeOptions extends Omit<UseTreeOptions, 'selectedItemIds' | 'defaultSelectedItemIds'> {}
 
 export interface UseVirtualTreeResult extends UseTreeResult {
   /** ref to be assigned to react-window VariableSizeList/FixedSizeList component */
