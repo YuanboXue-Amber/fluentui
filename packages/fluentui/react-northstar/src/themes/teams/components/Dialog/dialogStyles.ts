@@ -11,6 +11,7 @@ export const dialogStyles: ComponentSlotStylesPrepared<DialogStylesProps, Dialog
     padding: v.rootPadding,
     position: 'relative',
     width: v.rootWidth,
+    maxHeight: '100%',
 
     display: ['grid', '-ms-grid'],
     gridTemplateColumns: '1fr auto',
@@ -42,6 +43,8 @@ export const dialogStyles: ComponentSlotStylesPrepared<DialogStylesProps, Dialog
 
     justifySelf: 'left',
     width: '100%',
+
+    overflow: 'auto',
   }),
 
   header: ({ variables: v }): ICSSInJSStyle => ({
