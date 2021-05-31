@@ -147,4 +147,17 @@ describe('useAutoControlled', () => {
     });
     expect(dispatchSpy).toBeCalledWith('b');
   });
+
+  it('when uncontrolled and defaultValue changes, update to new defaultValue', () => {
+    const { result, rerender } = renderHook(
+      ({ defaultValue }) => useAutoControlled({ defaultValue, value: undefined }),
+      { initialProps: { defaultValue: 'a' } },
+    );
+    expect(result.current[0]).toBe('a');
+
+    act(() => {
+      rerender({ defaultValue: 'b' });
+    });
+    expect(result.current[0]).toBe('b');
+  });
 });

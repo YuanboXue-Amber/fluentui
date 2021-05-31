@@ -16,9 +16,12 @@ const isUndefined = (value: any) => typeof value === 'undefined';
 export const useAutoControlled = <Value>(
   options: UseAutoControlledOptions<Value>,
 ): [Value, React.Dispatch<React.SetStateAction<Value>>] => {
-  const [stateValue, setStateValue] = React.useState<Value>(
-    isUndefined(options.defaultValue) ? (options.initialValue as Value) : options.defaultValue,
-  );
+  const defaultState = isUndefined(options.defaultValue) ? (options.initialValue as Value) : options.defaultValue;
+  const [stateValue, setStateValue] = React.useState<Value>(defaultState);
+
+  React.useEffect(() => {
+    setStateValue(defaultState);
+  }, [defaultState]);
 
   const value = isUndefined(options.value) ? stateValue : options.value;
   // Used to avoid dependencies in "setValue"
