@@ -4,8 +4,16 @@
 
 Jest utilities for makeStyles
 
-There are two functions that can be used for testing if styles are applied correctly to a component.
+There are two functions that can be used for testing if styles are applied correctly to a component:
+
+- `toContainStyles` - Test that component contains some styles
+- `toHaveEqualStyles` - Test that all styles are present
+
 It is especially useful when styles are applied conditionally through `mergeClasses`:
+
+---
+
+### Example
 
 For this below example component:
 
@@ -28,59 +36,63 @@ const TestComponent = ({ id, isTopAligned }: { id?: string; isTopAligned?: boole
 };
 ```
 
+---
+
 1. `toContainStyles` - Test that component contains some styles
 
-Example test:
+   Example test:
 
-```tsx
-describe('Test component', () => {
-  it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" isTopAligned={false} />);
-    expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
-      alignItems: 'center',
-      justifyContent: 'center',
-      verticalAlign: 'top', // ❌  TestComponent does not have this style
-    });
-  });
-});
-```
+   ```tsx
+   describe('Test component', () => {
+     it('should merge correct styles', () => {
+       const wrapper = shallow(<Test id="test" isTopAligned={false} />);
+       expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
+         alignItems: 'center',
+         justifyContent: 'center',
+         verticalAlign: 'top', // ❌  TestComponent does not have this style
+       });
+     });
+   });
+   ```
 
-Test result:
+   Test result:
 
-![](./toContain.png)
+   ![](./toContain.png)
 
-The below test will pass:
+   The below test will pass:
 
-```tsx
-describe('Test component', () => {
-  it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" isTopAligned />);
-    expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
-      alignItems: 'center',
-      justifyContent: 'center',
-      verticalAlign: 'top', // ✅ applied because isTopAligned=true
-    });
-  });
-});
-```
+   ```tsx
+   describe('Test component', () => {
+     it('should merge correct styles', () => {
+       const wrapper = shallow(<Test id="test" isTopAligned />);
+       expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
+         alignItems: 'center',
+         justifyContent: 'center',
+         verticalAlign: 'top', // ✅ applied because isTopAligned=true
+       });
+     });
+   });
+   ```
+
+---
 
 2. `toHaveEqualStyles` - Test that all styles are present
 
-Example test:
+   Example test:
 
-```tsx
-describe('Test component', () => {
-  it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" isTopAligned={false} />);
-    expect(wrapper.find('[data-testid="test"]').prop('className')).toHaveEqualStyles({
-      // ❌ missing color style
-      alignItems: 'center',
-      justifyContent: 'center',
-    });
-  });
-});
-```
+   ```tsx
+   describe('Test component', () => {
+     it('should merge correct styles', () => {
+       const wrapper = shallow(<Test id="test" isTopAligned={false} />);
+       expect(wrapper.find('[data-testid="test"]').prop('className')).toHaveEqualStyles({
+         // ❌ missing color style
+         alignItems: 'center',
+         justifyContent: 'center',
+       });
+     });
+   });
+   ```
 
-Test result:
+   Test result:
 
-![](./toHaveEqual.png)
+   ![](./toHaveEqual.png)
