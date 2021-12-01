@@ -1,34 +1,22 @@
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { mergeClasses, makeStyles } from '@fluentui/react-make-styles';
-import { MakeStyles, resolveStyleRules, CSSRulesByBucket, getStyleInfoByClassNames } from '@fluentui/make-styles';
+import {
+  MakeStyles,
+  resolveStyleRules,
+  CSSRulesByBucket,
+  getStyleInfoByClassNames,
+  expandShorthand,
+  resolveProxyValues,
+} from '@fluentui/make-styles';
 import { diff } from 'jest-diff';
+import { ProviderContext } from '../../react-shared-contexts/src/index';
 
-const useStyles1 = makeStyles({
+const useStyles12 = makeStyles({
   root: theme => ({
     color: theme.colorNeutralForeground1,
-    border: 'solid',
-    margin: '20px',
-    // '&:hover': { margin: '20px' },
-    backgroundColor: 'red',
-    //
-    width: '1.6rem',
-    maxWidth: '1.6rem',
-    minWidth: '1.6rem',
-    maxHeight: '1.6rem',
-    height: '1.6rem',
-    padding: 0,
-    borderWidth: '.1rem',
-    borderColor: 'rgba(37,36,36,0.2)',
-    '&:hover': {
-      borderColor: 'rgba(37,36,36,0.2)',
-    },
-    marginTop: 0,
-    marginRight: '.4rem',
-    backfaceVisibility: 'hidden',
-    boxShadow: 'none',
-    justifySelf: 'end',
-    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   }),
   paddingLeft: {
     paddingLeft: '10px',
@@ -47,9 +35,19 @@ const Test = ({ id }: { id?: string }) => {
   return <div data-testid={id} className={styles1.root} />;
 };
 
-// const rtlWrapper: React.FC = ({ children }) => (
-//   <ProviderContext.Provider value={{ dir: 'rtl', targetDocument: document }}>{children}</ProviderContext.Provider>
-// );
+const addNoflipAnnotation = (styles: MakeStyles) => {
+  Object.keys(styles).forEach(key => {
+    if (typeof styles[key] === 'object') {
+      addNoflipAnnotation(styles[key]);
+    } else {
+      styles[key] = styles[key] + '  /* @noflip */';
+    }
+  });
+};
+
+const RtlWrapper: React.FC = ({ children }) => (
+  <ProviderContext.Provider value={{ dir: 'rtl', targetDocument: document }}>{children}</ProviderContext.Provider>
+);
 // TODO accept string className
 expect.extend({
   toHaveEqualStyles: (classNames: string, expected: MakeStyles) => {
@@ -63,14 +61,13 @@ expect.extend({
       }, [])
       .sort();
 
-    const resolvedExpected: CSSRulesByBucket = resolveStyleRules('', expected)[1];
-    const expectedRules: string[] = Object.values(resolvedExpected)
+    // addNoflipAnnotation(expected);
+    const expectedStylesByBucket: CSSRulesByBucket = resolveStyleRules('', expected)[1];
+    const expectedRules: string[] = Object.values(expectedStylesByBucket)
       .reduce<string[]>((acc, current) => {
         return current ? [...acc, ...current] : acc;
       }, [])
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      })
+      .filter(Boolean)
       .sort();
 
     const diffResult = diff(receivedRules.join('\n'), expectedRules.join('\n'), {
@@ -78,7 +75,7 @@ expect.extend({
       includeChangeCounts: true,
     });
 
-    if (diffResult === 'Compared values have no visual difference.') {
+    if (diffResult!.indexOf('Compared values have no visual difference.') >= 0) {
       return { pass: true, message: () => '' };
     }
 
@@ -86,47 +83,40 @@ expect.extend({
       pass: false,
       message: () =>
         `Unmatched atomic styles found!
+
 Expected styles:
 ${JSON.stringify(expected, null, 2)}
 
 Unmatched atomic styles:
 ${diffResult}
 `,
+      // expectedRules styles:
+      // ${JSON.stringify(expectedRules, null, 2)}
+
+      // receivedRules styles:
+      // ${JSON.stringify(receivedRules, null, 2)}
+
+      // `,
     };
   },
 });
 
-describe('make-styles', () => {
-  it('should check styles', () => {
-    const wrapper = shallow(<Test id="test" />);
+describe('Test component', () => {
+  it('should merge correct styles', () => {
+    const wrapper = mount(
+      <RtlWrapper>
+        <Test id="test" />)
+      </RtlWrapper>,
+    );
     // expect(wrapper.find('#test')).toHaveStyle({
     //   display: 'none',
     //   paddingLeft: '10px',
     //   // paddingRight: '20px',
     // });
     // const myStuff = getInfoByClassNames(wrapper.prop('className').split(' '));
-    expect(wrapper.prop('className')).toHaveEqualStyles({
-      // border: 'solid',
-      margin: '20px',
-      background: 'red',
-      //
-      width: '1.6rem',
-      maxWidth: '1.6rem',
-      minWidth: '1.6rem',
-      maxHeight: '1.6rem',
-      height: '1.6rem',
-      padding: 0,
-      borderWidth: '.1rem',
-      borderColor: 'rgba(37,36,36,0.2)',
-      '&:hover': {
-        borderColor: 'rgba(37,36,36,0.2)',
-      },
-      marginTop: 0,
-      marginRight: '.4rem',
-      backfaceVisibility: 'hidden',
-      boxShadow: 'none',
-      justifySelf: 'end',
-      alignSelf: 'center',
+    expect(wrapper.find('[data-testid="test"]').prop('className')).toHaveEqualStyles({
+      alignItems: 'center',
+      justifyContent: 'center',
     });
   });
 });
