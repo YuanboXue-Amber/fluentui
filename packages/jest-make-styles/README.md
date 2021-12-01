@@ -45,7 +45,7 @@ Result:
 
 ![](./toContain.png)
 
-1. `toHaveEqualStyles` - Test that all styles are present
+2. `toHaveEqualStyles` - Test that all styles are present
 
 ```tsx
 describe('Test component', () => {
