@@ -26,14 +26,33 @@ const TestComponent = ({ id }: { id?: string }) => {
 };
 ```
 
-1. `toHaveEqualStyles`
+1. `toContainStyles` - Test that component contains some styles
+
+```tsx
+describe('Test component', () => {
+  it('should merge correct styles', () => {
+    const wrapper = shallow(<Test id="test" />);
+    expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
+      alignItems: 'center',
+      justifyContent: 'center',
+      verticalAlign: 'top', // ❌  TestComponent does not have this style
+    });
+  });
+});
+```
+
+Result:
+
+![](./toContain.png)
+
+1. `toHaveEqualStyles` - Test that all styles are present
 
 ```tsx
 describe('Test component', () => {
   it('should merge correct styles', () => {
     const wrapper = shallow(<Test id="test" />);
     expect(wrapper.find('[data-testid="test"]').prop('className')).toHaveEqualStyles({
-      // missing color from styles
+      // ❌ missing color style
       alignItems: 'center',
       justifyContent: 'center',
     });
@@ -45,21 +64,10 @@ Result:
 
 ![](./toHaveEqual.png)
 
-1. `toContainStyles`
+If the component uses
 
 ```tsx
-describe('Test component', () => {
-  it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" />);
-    expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
-      alignItems: 'center',
-      justifyContent: 'center',
-      verticalAlign: 'top', // TestComponent does not have this style
-    });
-  });
-});
+<div data-testid={id} className={mergeClasses(styles1.root, styles1.isTopAligned)} />
 ```
 
-Result:
-
-![](./toContain.png)
+The above test will pass.
