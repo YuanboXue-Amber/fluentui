@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@fluentui/babel-make-styles": ["packages/babel-make-styles/src/index.ts"],
+      "@fluentui/jest-make-styles": ["packages/jest-make-styles/src/index.ts"],
       "@fluentui/jest-serializer-make-styles": ["packages/jest-serializer-make-styles/src/index.ts"],
       "@fluentui/keyboard-key": ["packages/keyboard-key/src/index.ts"],
       "@fluentui/keyboard-keys": ["packages/keyboard-keys/src/index.ts"],

@@ -90,6 +90,10 @@
     "@fluentui/foundation-legacy": {
       "implicitDependencies": []
     },
+    "@fluentui/jest-make-styles": {
+      "tags": ["vNext", "platform:node"],
+      "implicitDependencies": []
+    },
     "@fluentui/jest-serializer-make-styles": {
       "tags": ["vNext", "platform:node"],
       "implicitDependencies": []

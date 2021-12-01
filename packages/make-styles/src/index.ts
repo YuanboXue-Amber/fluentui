@@ -12,5 +12,8 @@ export { createCSSVariablesProxy, resolveProxyValues } from './runtime/createCSS
 export { resolveStyleRules } from './runtime/resolveStyleRules';
 export { __styles } from './__styles';
 
+// Private exports, used by jest-make-styles
+export { getStyleInfoByClassNames } from './devtools/injectDevTools';
+
 export * from './types';
 export * from './constants';

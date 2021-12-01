@@ -14,7 +14,10 @@ export function makeStyles<Slots extends string | number, Tokens>(
   let ltrClassNamesForSlots: Record<Slots, string> | null = null;
   let rtlClassNamesForSlots: Record<Slots, string> | null = null;
 
-  const id = Math.random().toString(16).slice(2);
+  let id = '';
+  if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'production') {
+    id = Math.random().toString(16).slice(2);
+  }
 
   function computeClasses(options: MakeStylesOptions): Record<Slots, string> {
     const { dir, renderer } = options;

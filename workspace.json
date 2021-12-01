@@ -91,6 +91,11 @@
       "root": "packages/foundation-legacy",
       "projectType": "library"
     },
+    "@fluentui/jest-make-styles": {
+      "root": "packages/jest-make-styles",
+      "projectType": "library",
+      "sourceRoot": "packages/jest-make-styles/src"
+    },
     "@fluentui/jest-serializer-make-styles": {
       "root": "packages/jest-serializer-make-styles",
       "projectType": "library",
