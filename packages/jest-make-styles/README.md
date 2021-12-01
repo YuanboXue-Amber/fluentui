@@ -4,7 +4,8 @@
 
 Jest utilities for makeStyles
 
-There are two functions can be used for testing result of mergeClasses.
+There are two functions that can be used for testing if styles are applied correctly to a component.
+It is especially useful when styles are applied conditionally through `mergeClasses`:
 
 For this below example component:
 
@@ -20,18 +21,21 @@ const useStyles1 = makeStyles({
   },
 });
 
-const TestComponent = ({ id }: { id?: string }) => {
+const TestComponent = ({ id, isTopAligned }: { id?: string; isTopAligned?: boolean }) => {
   const styles1 = useStyles1();
-  return <div data-testid={id} className={styles1.root} />;
+  const className = mergeClasses(styles1.root, isTopAligned && styles1.isTopAligned);
+  return <div data-testid={id} className={className} />;
 };
 ```
 
 1. `toContainStyles` - Test that component contains some styles
 
+Example test:
+
 ```tsx
 describe('Test component', () => {
   it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" />);
+    const wrapper = shallow(<Test id="test" isTopAligned={false} />);
     expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
       alignItems: 'center',
       justifyContent: 'center',
@@ -41,16 +45,33 @@ describe('Test component', () => {
 });
 ```
 
-Result:
+Test result:
 
 ![](./toContain.png)
 
-2. `toHaveEqualStyles` - Test that all styles are present
+The below test will pass:
 
 ```tsx
 describe('Test component', () => {
   it('should merge correct styles', () => {
-    const wrapper = shallow(<Test id="test" />);
+    const wrapper = shallow(<Test id="test" isTopAligned />);
+    expect(wrapper.find('[data-testid="test"]').prop('className')).toContainStyles({
+      alignItems: 'center',
+      justifyContent: 'center',
+      verticalAlign: 'top', // ✅ applied because isTopAligned=true
+    });
+  });
+});
+```
+
+2. `toHaveEqualStyles` - Test that all styles are present
+
+Example test:
+
+```tsx
+describe('Test component', () => {
+  it('should merge correct styles', () => {
+    const wrapper = shallow(<Test id="test" isTopAligned={false} />);
     expect(wrapper.find('[data-testid="test"]').prop('className')).toHaveEqualStyles({
       // ❌ missing color style
       alignItems: 'center',
@@ -60,14 +81,6 @@ describe('Test component', () => {
 });
 ```
 
-Result:
+Test result:
 
 ![](./toHaveEqual.png)
-
-If the component uses
-
-```tsx
-<div data-testid={id} className={mergeClasses(styles1.root, styles1.isTopAligned)} />
-```
-
-The above test will pass.
