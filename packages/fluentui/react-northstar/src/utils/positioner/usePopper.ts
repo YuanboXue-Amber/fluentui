@@ -227,6 +227,23 @@ function usePopperOptions(options: PopperOptions, popperOriginalPositionRef: Rea
           enabled: !!arrow,
           options: { element: arrow },
         },
+
+        /**
+         * This modifier fix https://github.com/floating-ui/floating-ui/issues/1267
+         */
+        hasScrollableElement && {
+          name: 'externalScroll',
+          enabled: true,
+          phase: 'write',
+          fn: () => {},
+          effect: ({ instance }: PopperJs.ModifierArguments<PopperJs.Options>) => {
+            scrollParentElement.addEventListener('scroll', instance.update, { passive: true });
+
+            return () => {
+              scrollParentElement.removeEventListener('scroll', instance.update);
+            };
+          },
+        },
       ].filter(Boolean);
 
       const popperOptions: PopperJs.Options = {
