@@ -131,7 +131,7 @@ export const colorScheme = {
 
     borderHover: colors.brand['300'],
 
-    backgroundHover: colors.brand['600'],
+    backgroundHover: colors.brand['700'],
     backgroundHover1: colors.brand['50'],
 
     foregroundPressed: colors.brand['700'],
