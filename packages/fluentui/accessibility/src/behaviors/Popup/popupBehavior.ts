@@ -79,7 +79,7 @@ const isFocusable = propsData => {
 
 const getAriaAttributeFromProps = (attributeName: string, props: any, defaultValue: number | string) => {
   if (!props.trigger) return undefined;
-  if (props.trigger.props[attributeName]) {
+  if (attributeName in props.trigger.props) {
     return props.trigger.props[attributeName];
   }
   const { as, href } = props.trigger.props;

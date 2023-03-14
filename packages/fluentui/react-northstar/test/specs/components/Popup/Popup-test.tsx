@@ -79,6 +79,17 @@ describe('Popup', () => {
         .simulate('click');
       expect(spy).toHaveBeenCalledTimes(2);
     });
+
+    test('tabindex prop overrides tabindex from Popup', () => {
+      const focusableTrigger = mountWithProvider(<Popup trigger={<div />} content="Hi" on={['hover']} />).find('div');
+      expect(focusableTrigger.getDOMNode().getAttribute('tabindex')).toBe('0');
+
+      const nonFocusableTrigger = mountWithProvider(
+        /** This is a bad pattern. This example is just for testing to make sure it works */
+        <Popup trigger={<div tabIndex={undefined} />} content="Hi" on={['hover']} />,
+      ).find('div');
+      expect(nonFocusableTrigger.getDOMNode().getAttribute('tabindex')).toBe(null);
+    });
   });
 
   describe('onOpenChange', () => {
