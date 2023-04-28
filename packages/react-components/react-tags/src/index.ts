@@ -8,3 +8,11 @@ export {
   useTagContent_unstable,
 } from './TagContent';
 export type { TagContentProps, TagContentSlots, TagContentState } from './TagContent';
+export {
+  TagGroup,
+  renderTagGroup_unstable,
+  tagGroupClassNames,
+  useTagGroupStyles_unstable,
+  useTagGroup_unstable,
+} from './TagGroup';
+export type { TagGroupProps, TagGroupSlots, TagGroupState } from './TagGroup';
