@@ -22,6 +22,9 @@ export const renderTag_unstable: (state: TagState, contextValues: TagContextValu
 export const renderTagButton_unstable: (state: TagButtonState, contextValues: TagButtonContextValues) => JSX.Element;
 
 // @public
+export const renderTagGroup_unstable: (state: TagGroupState) => JSX.Element;
+
+// @public
 export const Tag: ForwardRefComponent<TagProps>;
 
 // @public
@@ -41,6 +44,23 @@ export type TagButtonState = TagState;
 
 // @public (undocumented)
 export const tagClassNames: SlotClassNames<TagSlots>;
+
+// @public
+export const TagGroup: ForwardRefComponent<TagGroupProps>;
+
+// @public (undocumented)
+export const tagGroupClassNames: SlotClassNames<TagGroupSlots>;
+
+// @public
+export type TagGroupProps = ComponentProps<TagGroupSlots> & {};
+
+// @public (undocumented)
+export type TagGroupSlots = {
+    root: Slot<'div'>;
+};
+
+// @public
+export type TagGroupState = ComponentState<TagGroupSlots>;
 
 // @public
 export type TagProps = ComponentProps<Partial<TagSlots>> & {
@@ -77,6 +97,12 @@ export const useTagButton_unstable: (props: TagButtonProps, ref: React_2.Ref<HTM
 
 // @public
 export const useTagButtonStyles_unstable: (state: TagButtonState) => TagButtonState;
+
+// @public
+export const useTagGroup_unstable: (props: TagGroupProps, ref: React_2.Ref<HTMLElement>) => TagGroupState;
+
+// @public
+export const useTagGroupStyles_unstable: (state: TagGroupState) => TagGroupState;
 
 // @public
 export const useTagStyles_unstable: (state: TagState) => TagState;
