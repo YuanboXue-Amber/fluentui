@@ -4,6 +4,7 @@ import type { SlotClassNames } from '@fluentui/react-utilities';
 import { createCustomFocusIndicatorStyle } from '@fluentui/react-tabster';
 import { tokens } from '@fluentui/react-theme';
 import { useTagBaseStyles } from '../Tag/index';
+import { iconFilledClassName, iconRegularClassName } from '@fluentui/react-icons';
 
 export const tagButtonClassNames: SlotClassNames<TagButtonSlots> = {
   root: 'fui-TagButton',
@@ -59,17 +60,36 @@ const useStyles = makeStyles({
   // TODO add additional classes for fill/outline appearance, different sizes, and state
 });
 
+const useCheckedStyles = makeStyles({
+  root: {
+    backgroundColor: tokens.colorBrandBackground2,
+    // TODO put border in base style as well to prevent reflow
+    ...shorthands.border(tokens.strokeWidthThin, 'solid', tokens.colorBrandStroke2),
+    color: tokens.colorBrandForeground2,
+  },
+  content: {
+    [`& .${iconFilledClassName}`]: {
+      display: 'inline',
+    },
+    [`& .${iconRegularClassName}`]: {
+      display: 'none',
+    },
+  },
+});
+
 /**
  * Apply styling to the TagButton slots based on the state
  */
 export const useTagButtonStyles_unstable = (state: TagButtonState): TagButtonState => {
   const baseStyles = useTagBaseStyles();
   const styles = useStyles();
+  const checkedStyles = useCheckedStyles();
 
   state.root.className = mergeClasses(
     tagButtonClassNames.root,
     baseStyles.root,
     state.shape === 'circular' && baseStyles.rootCircular,
+    state.checked && checkedStyles.root,
     state.root.className,
   );
   if (state.content) {
@@ -81,6 +101,8 @@ export const useTagButtonStyles_unstable = (state: TagButtonState): TagButtonSta
       styles.content,
       state.shape === 'circular' && styles.circularContent,
       state.dismissButton && styles.dismissableContent,
+
+      state.checked && checkedStyles.content,
 
       state.content.className,
     );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getNativeElementProps } from '@fluentui/react-utilities';
+import { getNativeElementProps, useControllableState, useEventCallback } from '@fluentui/react-utilities';
 import type { TagGroupProps, TagGroupState } from './TagGroup.types';
 
 /**
@@ -12,17 +12,36 @@ import type { TagGroupProps, TagGroupState } from './TagGroup.types';
  * @param ref - reference to root HTMLElement of TagGroup
  */
 export const useTagGroup_unstable = (props: TagGroupProps, ref: React.Ref<HTMLElement>): TagGroupState => {
+  const [checkedItems, setCheckedItems] = useControllableState({
+    state: props.checkedItems ?? undefined,
+    defaultState: props.defaultCheckedItems,
+    initialState: [],
+  });
+
+  const toggleCheckedItems = useEventCallback(
+    (e: React.MouseEvent | React.KeyboardEvent, id: string, checked: boolean) => {
+      const newCheckedItems = [...checkedItems];
+      if (checked) {
+        newCheckedItems.splice(newCheckedItems.indexOf(id), 1);
+      } else {
+        newCheckedItems.push(id);
+      }
+
+      props.onCheckedItemsChange?.(e, { checkedItems: newCheckedItems });
+      setCheckedItems(newCheckedItems);
+    },
+  );
+
   return {
-    // TODO add appropriate props/defaults
     components: {
-      // TODO add each slot's element type or component
       root: 'div',
     },
-    // TODO add appropriate slots, for example:
-    // mySlot: resolveShorthand(props.mySlot),
     root: getNativeElementProps('div', {
       ref,
+      // TODO aria attributes
       ...props,
     }),
+    checkedItems,
+    toggleCheckedItems,
   };
 };

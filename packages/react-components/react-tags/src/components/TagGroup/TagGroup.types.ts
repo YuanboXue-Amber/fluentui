@@ -1,4 +1,12 @@
+import * as React from 'react';
 import type { ComponentProps, ComponentState, Slot } from '@fluentui/react-utilities';
+
+export type TagGroupCheckedItemsChangeEvent = React.MouseEvent | React.KeyboardEvent;
+
+export type TagGroupCheckedItemsChangeData = {
+  /** Checked items' ids */
+  checkedItems: string[];
+};
 
 export type TagGroupSlots = {
   root: Slot<'div'>;
@@ -7,11 +15,31 @@ export type TagGroupSlots = {
 /**
  * TagGroup Props
  */
-export type TagGroupProps = ComponentProps<TagGroupSlots> & {};
+export type TagGroupProps = ComponentProps<TagGroupSlots> & {
+  /**
+   * All checked items' ids
+   */
+  checkedItems?: string[];
+
+  /**
+   * Default items to be checked on mount
+   */
+  defaultCheckedItems?: string[];
+
+  /**
+   * Callback when checked items change
+   *
+   * @param event - React's original SyntheticEvent
+   * @param data - A data object with relevant information
+   */
+  onCheckedItemsChange?: (e: TagGroupCheckedItemsChangeEvent, data: TagGroupCheckedItemsChangeData) => void;
+};
 
 /**
  * State used in rendering TagGroup
  */
-export type TagGroupState = ComponentState<TagGroupSlots>;
-// TODO: Remove semicolon from previous line, uncomment next line, and provide union of props to pick from TagGroupProps.
-// & Required<Pick<TagGroupProps, 'propName'>>
+export type TagGroupState = ComponentState<TagGroupSlots> &
+  Required<Pick<TagGroupProps, 'checkedItems'>> &
+  Pick<TagGroupProps, 'onCheckedItemsChange'> & {
+    toggleCheckedItems: (e: React.MouseEvent | React.KeyboardEvent, id: string, checked: boolean) => void;
+  };
