@@ -1,11 +1,10 @@
 import { makeStyles, mergeClasses } from '@griffel/react';
 import type { TagGroupSlots, TagGroupState } from './TagGroup.types';
 import type { SlotClassNames } from '@fluentui/react-utilities';
+import { tokens } from '@fluentui/react-theme';
 
 export const tagGroupClassNames: SlotClassNames<TagGroupSlots> = {
   root: 'fui-TagGroup',
-  // TODO: add class names for all slots on TagGroupSlots.
-  // Should be of the form `<slotName>: 'fui-TagGroup__<slotName>`
 };
 
 /**
@@ -13,10 +12,9 @@ export const tagGroupClassNames: SlotClassNames<TagGroupSlots> = {
  */
 const useStyles = makeStyles({
   root: {
-    // TODO Add default styles for the root element
+    display: 'inline-flex',
+    columnGap: tokens.spacingHorizontalS,
   },
-
-  // TODO add additional classes for different states and/or slots
 });
 
 /**
@@ -25,9 +23,6 @@ const useStyles = makeStyles({
 export const useTagGroupStyles_unstable = (state: TagGroupState): TagGroupState => {
   const styles = useStyles();
   state.root.className = mergeClasses(tagGroupClassNames.root, styles.root, state.root.className);
-
-  // TODO Add class names to slots, for example:
-  // state.mySlot.className = mergeClasses(styles.mySlot, state.mySlot.className);
 
   return state;
 };
