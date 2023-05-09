@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { ComponentProps, ComponentState, Slot } from '@fluentui/react-utilities';
 
 export type TagContextValue = Required<Pick<TagProps, 'dismissible' | 'shape' | 'size' | 'interactive'>>;
@@ -20,8 +21,13 @@ export type TagProps = ComponentProps<Partial<TagSlots>> & {
   shape?: 'rounded' | 'circular';
   appearance?: 'filled-darker' | 'filled-lighter' | 'tint' | 'outline';
   disabled?: boolean;
-  checked?: boolean;
+
+  // TODO implement checked state
+  // checked?: boolean;
+
   dismissible?: boolean;
+  onDismiss?: (e: React.MouseEvent | React.KeyboardEvent) => void;
+
   interactive?: boolean;
 };
 
@@ -29,4 +35,6 @@ export type TagProps = ComponentProps<Partial<TagSlots>> & {
  * State used in rendering Tag
  */
 export type TagState = ComponentState<TagSlots> &
-  Required<Pick<TagProps, 'appearance' | 'checked' | 'disabled' | 'dismissible' | 'shape' | 'size' | 'interactive'>>;
+  Required<Pick<TagProps, 'appearance' | 'disabled' | 'dismissible' | 'shape' | 'size' | 'interactive'>> & {
+    dismissed?: boolean;
+  };

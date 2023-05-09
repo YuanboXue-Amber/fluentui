@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { getNativeElementProps } from '@fluentui/react-utilities';
+import { getNativeElementProps, useEventCallback } from '@fluentui/react-utilities';
 import { DismissRegular, bundleIcon, DismissFilled } from '@fluentui/react-icons';
 import type { TagProps, TagState } from './Tag.types';
 import { useARIAButtonShorthand } from '@fluentui/react-aria';
+import { Delete, Backspace } from '@fluentui/keyboard-keys';
 
 const DismissIcon = bundleIcon(DismissFilled, DismissRegular);
 
@@ -17,14 +18,45 @@ const DismissIcon = bundleIcon(DismissFilled, DismissRegular);
  */
 export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): TagState => {
   const {
-    checked = false,
+    appearance = 'filled-lighter',
     disabled = false,
     dismissible = false,
+    interactive = false,
+    onDismiss,
     shape = 'rounded',
     size = 'medium',
-    appearance = 'filled-lighter',
-    interactive = false,
   } = props;
+
+  const [dismissed, setDismissed] = React.useState(false);
+
+  const dismissButtonShorthand = useARIAButtonShorthand(props.dismissButton, {
+    required: props.dismissible,
+    defaultProps: {
+      disabled,
+      type: 'button',
+      children: <DismissIcon />,
+    },
+  });
+
+  const onDismissButtonClick = useEventCallback(
+    (ev: React.MouseEvent<HTMLButtonElement & HTMLDivElement & HTMLSpanElement & HTMLAnchorElement>) => {
+      dismissButtonShorthand?.onClick?.(ev);
+      if (!ev.defaultPrevented) {
+        onDismiss?.(ev);
+        setDismissed(true);
+      }
+    },
+  );
+
+  const onDismissButtonKeyDown = useEventCallback(
+    (ev: React.KeyboardEvent<HTMLButtonElement & HTMLDivElement & HTMLSpanElement & HTMLAnchorElement>) => {
+      dismissButtonShorthand?.onKeyDown?.(ev);
+      if (!ev.defaultPrevented && (ev.key === Delete || ev.key === Backspace)) {
+        onDismiss?.(ev);
+        setDismissed(true);
+      }
+    },
+  );
 
   return {
     components: {
@@ -32,26 +64,24 @@ export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): T
       dismissButton: 'button',
     },
 
-    checked,
+    appearance,
     disabled,
+    dismissed,
     dismissible,
+    interactive,
     shape,
     size,
-    appearance,
-    interactive,
 
     root: getNativeElementProps('div', {
       ref,
       ...props,
     }),
-
-    dismissButton: useARIAButtonShorthand(props.dismissButton, {
-      required: props.dismissible,
-      defaultProps: {
-        disabled,
-        type: 'button',
-        children: <DismissIcon />,
-      },
-    }),
+    dismissButton: dismissButtonShorthand
+      ? {
+          ...dismissButtonShorthand,
+          onClick: onDismissButtonClick,
+          onKeyDown: onDismissButtonKeyDown,
+        }
+      : undefined,
   };
 };
