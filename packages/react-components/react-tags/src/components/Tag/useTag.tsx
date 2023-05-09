@@ -4,6 +4,7 @@ import { DismissRegular, bundleIcon, DismissFilled } from '@fluentui/react-icons
 import type { TagProps, TagState } from './Tag.types';
 import { useARIAButtonShorthand } from '@fluentui/react-aria';
 import { Delete, Backspace } from '@fluentui/keyboard-keys';
+import { useTagGroupContext_unstable } from '../../contexts/TagGroupContext';
 
 const DismissIcon = bundleIcon(DismissFilled, DismissRegular);
 
@@ -17,6 +18,8 @@ const DismissIcon = bundleIcon(DismissFilled, DismissRegular);
  * @param ref - reference to root HTMLElement of Tag
  */
 export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): TagState => {
+  const handleTagDismiss = useTagGroupContext_unstable(context => context.handleTagDismiss);
+
   const {
     appearance = 'filled-lighter',
     disabled = false,
@@ -28,6 +31,11 @@ export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): T
   } = props;
 
   const [dismissed, setDismissed] = React.useState(false);
+
+  const dismiss = useEventCallback(() => {
+    setDismissed(true);
+    handleTagDismiss();
+  });
 
   const dismissButtonShorthand = useARIAButtonShorthand(props.dismissButton, {
     required: props.dismissible,
@@ -43,7 +51,7 @@ export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): T
       dismissButtonShorthand?.onClick?.(ev);
       if (!ev.defaultPrevented) {
         onDismiss?.(ev);
-        setDismissed(true);
+        dismiss();
       }
     },
   );
@@ -53,7 +61,7 @@ export const useTag_unstable = (props: TagProps, ref: React.Ref<HTMLElement>): T
       dismissButtonShorthand?.onKeyDown?.(ev);
       if (!ev.defaultPrevented && (ev.key === Delete || ev.key === Backspace)) {
         onDismiss?.(ev);
-        setDismissed(true);
+        dismiss();
       }
     },
   );
