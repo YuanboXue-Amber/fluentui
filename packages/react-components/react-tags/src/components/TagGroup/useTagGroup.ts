@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getNativeElementProps, useMergedRefs, useEventCallback } from '@fluentui/react-utilities';
+import { getNativeElementProps, useEventCallback } from '@fluentui/react-utilities';
 import type { TagGroupProps, TagGroupState } from './TagGroup.types';
 
 /**
@@ -12,12 +12,11 @@ import type { TagGroupProps, TagGroupState } from './TagGroup.types';
  * @param ref - reference to root HTMLElement of TagGroup
  */
 export const useTagGroup_unstable = (props: TagGroupProps, ref: React.Ref<HTMLElement>): TagGroupState => {
-  const innerRef = React.useRef<HTMLDivElement>(null);
-
   const { children, onDismiss, items = [], size = 'medium' } = props;
 
   const handleTagDismiss = useEventCallback((e: React.MouseEvent | React.KeyboardEvent, id: string) => {
-    onDismiss?.(e, [id]);
+    // TODO think about selection and delete tag in bulk, can user do that?
+    onDismiss?.(e, { dismissedTagIds: [id] });
 
     // TODO set focus after tag dismiss
   });
@@ -32,7 +31,7 @@ export const useTagGroup_unstable = (props: TagGroupProps, ref: React.Ref<HTMLEl
     },
 
     root: getNativeElementProps('div', {
-      ref: useMergedRefs(ref, innerRef),
+      ref,
       ...props,
       children: typeof children === 'function' ? items.map(item => children(item)) : children,
       // TODO aria attributes

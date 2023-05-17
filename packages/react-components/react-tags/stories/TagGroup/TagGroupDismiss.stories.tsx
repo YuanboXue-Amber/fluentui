@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TagGroup, Tag, TagButton, TagButtonProps, TagProps } from '@fluentui/react-tags';
+import { TagGroup, Tag, TagButton, TagButtonProps, TagProps, TagGroupProps } from '@fluentui/react-tags';
 
 export const Dismiss = () => {
   const defaultItems = [
@@ -11,15 +11,21 @@ export const Dismiss = () => {
 
   const [items, setItems] = React.useState(defaultItems);
 
-  const removeItem = (_e: React.MouseEvent | React.KeyboardEvent, ids: string[]) => {
-    setItems(prevItems => prevItems.filter(item => ids[0] !== item.id));
+  const removeItem: TagGroupProps['onDismiss'] = (_e, { dismissedTagIds }) => {
+    setItems(prevItems => prevItems.filter(item => dismissedTagIds[0] !== item.id));
   };
 
   const isTagButton = (item: TagProps | TagButtonProps): item is TagButtonProps => !!item.id?.startsWith('tagButton');
 
   return (
     <TagGroup<TagProps | TagButtonProps> items={items} onDismiss={removeItem}>
-      {item => (isTagButton(item) ? <TagButton dismissible {...item} /> : <Tag dismissible {...item} />)}
+      {item =>
+        isTagButton(item) ? (
+          <TagButton key={item.id} dismissible {...item} />
+        ) : (
+          <Tag key={item.id} dismissible {...item} />
+        )
+      }
     </TagGroup>
   );
 };

@@ -8,13 +8,17 @@ export type TagGroupSlots = {
 
 export type ItemRenderFunction<TItem = TagProps> = (item: TItem) => React.ReactNode;
 
+export type TagGroupDismissData = {
+  dismissedTagIds: string[];
+};
+
 /**
  * TagGroup Props
  */
 export type TagGroupProps<TItem = TagProps> = Omit<ComponentProps<TagGroupSlots>, 'children'> & {
   children: React.ReactNode | ItemRenderFunction<TItem>;
   items?: Array<TItem>;
-  onDismiss?: (e: React.MouseEvent | React.KeyboardEvent, dismissedTagIds: string[]) => void;
+  onDismiss?: (e: React.MouseEvent | React.KeyboardEvent, data: TagGroupDismissData) => void;
   size?: TagSize;
 };
 
