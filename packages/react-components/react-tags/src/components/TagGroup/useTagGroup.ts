@@ -16,7 +16,7 @@ export const useTagGroup_unstable = (props: TagGroupProps, ref: React.Ref<HTMLEl
 
   const handleTagDismiss = useEventCallback((e: React.MouseEvent | React.KeyboardEvent, id: string) => {
     // TODO think about selection and delete tag in bulk, can user do that?
-    onDismiss?.(e, { dismissedTagIds: [id] });
+    onDismiss?.(e, { dismissedTagId: id });
 
     // TODO set focus after tag dismiss
   });

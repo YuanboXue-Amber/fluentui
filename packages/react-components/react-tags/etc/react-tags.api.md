@@ -60,7 +60,7 @@ export const tagGroupClassNames: SlotClassNames<TagGroupSlots>;
 export type TagGroupProps<TItem = TagProps> = Omit<ComponentProps<TagGroupSlots>, 'children'> & {
     children: React_2.ReactNode | ItemRenderFunction<TItem>;
     items?: Array<TItem>;
-    onDismiss?: (e: React_2.MouseEvent | React_2.KeyboardEvent, dismissedTagIds: string[]) => void;
+    onDismiss?: (e: React_2.MouseEvent | React_2.KeyboardEvent, data: TagGroupDismissData) => void;
     size?: TagSize;
 };
 

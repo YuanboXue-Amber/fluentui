@@ -11,8 +11,13 @@ export const Dismiss = () => {
 
   const [items, setItems] = React.useState(defaultItems);
 
-  const removeItem: TagGroupProps['onDismiss'] = (_e, { dismissedTagIds }) => {
-    setItems(prevItems => prevItems.filter(item => dismissedTagIds[0] !== item.id));
+  const removeItem: TagGroupProps['onDismiss'] = (_e, { dismissedTagId }) => {
+    const newItems = [...items];
+    newItems.splice(
+      newItems.findIndex(item => item.id === dismissedTagId),
+      1,
+    );
+    setItems(newItems);
   };
 
   const isTagButton = (item: TagProps | TagButtonProps): item is TagButtonProps => !!item.id?.startsWith('tagButton');

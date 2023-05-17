@@ -9,7 +9,7 @@ export type TagGroupSlots = {
 export type ItemRenderFunction<TItem = TagProps> = (item: TItem) => React.ReactNode;
 
 export type TagGroupDismissData = {
-  dismissedTagIds: string[];
+  dismissedTagId: string;
 };
 
 /**
