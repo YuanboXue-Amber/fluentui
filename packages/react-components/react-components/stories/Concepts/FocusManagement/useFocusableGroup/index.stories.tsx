@@ -4,6 +4,8 @@ import descriptionMd from './useFocusableGroupDescription.md';
 export { Default } from './Default.stories';
 export { Limited } from './Limited.stories';
 export { LimitedTrapFocus } from './LimitedTrapFocus.stories';
+export { LightDOM } from './LightDOM.stories';
+export { ShadowDOM } from './ShadowDOM.stories';
 
 export default {
   title: 'Utilities/Focus Management/useFocusableGroup',
