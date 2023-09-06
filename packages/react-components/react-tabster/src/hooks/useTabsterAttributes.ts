@@ -12,3 +12,8 @@ export const useTabsterAttributes = (props: TabsterTypes.TabsterAttributeProps):
 
   return getTabsterAttribute(props);
 };
+
+export const useUncontrolled = () =>
+  useTabsterAttributes({
+    uncontrolled: {},
+  });

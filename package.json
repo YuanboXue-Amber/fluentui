@@ -388,6 +388,7 @@
     "@mdx-js/loader/loader-utils": "~2.0.4",
     "swc-loader": "^0.2.3",
     "prettier": "2.8.8",
-    "puppeteer": "19.6.0"
+    "puppeteer": "19.6.0",
+    "tabster": "5.0.0-canary.0"
   }
 }

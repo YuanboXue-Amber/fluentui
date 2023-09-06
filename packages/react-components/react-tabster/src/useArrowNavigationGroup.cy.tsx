@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mount } from '@cypress/react';
-import { useArrowNavigationGroup, UseArrowNavigationGroupOptions } from './hooks';
+import { useArrowNavigationGroup, UseArrowNavigationGroupOptions, useUncontrolled } from './hooks';
 import root from 'react-shadow';
 
 const SimpleGroup = (attributes: React.HTMLAttributes<HTMLDivElement>) => (
@@ -23,11 +23,18 @@ const TestWrapper: React.FC<{
   options: UseArrowNavigationGroupOptions;
 }> = props => {
   const containerEl = <ArrowNavigationGroup options={props.options} />;
+  const uncontrolled = useUncontrolled();
   return (
     <div style={{ border: '3px solid green', padding: 20, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <h3>using Shadow DOM: {props.useShadowDOM ? '✅' : '❌'}</h3>
 
-      {props.useShadowDOM ? <root.div id="shadow-host">{containerEl}</root.div> : containerEl}
+      {props.useShadowDOM ? (
+        <root.div id="shadow-host" {...uncontrolled}>
+          {containerEl}
+        </root.div>
+      ) : (
+        containerEl
+      )}
 
       <div id="outside-area" style={{ border: '3px solid olive', padding: 20 }}>
         <button id="outside-button">a button outside</button>

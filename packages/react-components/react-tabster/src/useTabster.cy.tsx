@@ -2,6 +2,7 @@ import * as React from 'react';
 import { mount } from '@cypress/react';
 import root from 'react-shadow';
 import { useTabster } from './hooks/useTabster';
+import { useUncontrolled } from './hooks/useTabsterAttributes';
 
 type SimpleContainerProps = { containerId?: string };
 const SimpleContainer: React.FC<SimpleContainerProps> = ({ containerId }) => (
@@ -16,25 +17,56 @@ const ContainerWithTabster: React.FC<SimpleContainerProps> = props => {
   return <SimpleContainer {...props} />;
 };
 
-const ContainerElement: React.FC<{
-  useShadowDOM: boolean;
+const LightContainer: React.FC<{
   id: string;
   disableTabster?: boolean;
-}> = ({ useShadowDOM, id, disableTabster }) => {
+}> = ({ id, disableTabster }) => {
   const ContainerComponent = disableTabster ? SimpleContainer : ContainerWithTabster;
-  const containerId = useShadowDOM ? `shadow-${id}` : id;
+  const containerId = id;
 
-  return useShadowDOM ? (
-    <root.div id={containerId}>
-      container: {containerId}
-      <ContainerComponent containerId={containerId} />
-    </root.div>
-  ) : (
+  return (
     <div id={containerId}>
       container: {containerId}
       <ContainerComponent containerId={containerId} />
     </div>
   );
+};
+
+const ShadowContainerWithTabster: React.FC<{
+  id: string;
+}> = ({ id }) => {
+  const containerId = `shadow-${id}`;
+  const uncontrolled = useUncontrolled();
+
+  return (
+    <root.div id={containerId} {...uncontrolled}>
+      container: {containerId}
+      <ContainerWithTabster containerId={containerId} />
+    </root.div>
+  );
+};
+const ShadowContainer: React.FC<{
+  id: string;
+}> = ({ id }) => {
+  const containerId = `shadow-${id}`;
+
+  return (
+    <root.div id={containerId}>
+      container: {containerId}
+      <SimpleContainer containerId={containerId} />
+    </root.div>
+  );
+};
+
+const ContainerElement: React.FC<{
+  useShadowDOM: boolean;
+  id: string;
+  disableTabster?: boolean;
+}> = ({ useShadowDOM, id, disableTabster }) => {
+  if (useShadowDOM) {
+    return disableTabster ? <ShadowContainer id={id} /> : <ShadowContainerWithTabster id={id} />;
+  }
+  return <LightContainer id={id} disableTabster={disableTabster} />;
 };
 
 const TestWrapper: React.FC<{
