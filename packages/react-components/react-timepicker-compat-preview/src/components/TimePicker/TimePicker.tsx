@@ -1,16 +1,16 @@
 import * as React from 'react';
-import {
-  TimeConstants,
-  addMinutes,
-  formatTimeString,
-  ceilMinuteToIncrement,
-  getDateFromTimeSelection,
-} from '@fluentui/date-time-utilities';
 import { ComboBox } from '@fluentui/react';
 import { KeyCodes, format } from '@fluentui/utilities';
 import type { IComboBox, IComboBoxOption } from '@fluentui/react';
 import type { ITimePickerProps, ITimeRange, ITimePickerStrings } from './TimePicker.types';
 import { useControllableValue, useConst } from '@fluentui/react-hooks';
+import {
+  TimeConstants,
+  addMinutes,
+  ceilMinuteToIncrement,
+  formatTimeString,
+  getDateFromTimeSelection,
+} from '../../utils';
 
 const REGEX_SHOW_SECONDS_HOUR_12 = /^((1[0-2]|0?[1-9]):([0-5][0-9]):([0-5][0-9])\s([AaPp][Mm]))$/;
 const REGEX_HIDE_SECONDS_HOUR_12 = /^((1[0-2]|0?[1-9]):[0-5][0-9]\s([AaPp][Mm]))$/;

@@ -37,7 +37,6 @@
     "@fluentui/react": "^8.111.2",
     "@fluentui/react-hooks": "^8.6.29",
     "@fluentui/utilities": "^8.13.18",
-    "@fluentui/date-time-utilities": "^8.5.13",
     "@griffel/react": "^1.5.14",
     "@swc/helpers": "^0.5.1"
   },
