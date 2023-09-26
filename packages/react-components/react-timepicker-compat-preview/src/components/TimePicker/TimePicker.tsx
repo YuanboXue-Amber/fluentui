@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ComboBox } from '@fluentui/react';
-import { KeyCodes, format } from '@fluentui/utilities';
 import type { IComboBox, IComboBoxOption } from '@fluentui/react';
 import type { ITimePickerProps, ITimeRange, ITimePickerStrings } from './TimePicker.types';
 import { useControllableValue, useConst } from '@fluentui/react-hooks';
@@ -24,7 +23,7 @@ const getDefaultStrings = (useHour12: boolean, showSeconds: boolean): ITimePicke
   const hourUnits = useHour12 ? '12-hour' : '24-hour';
   const timeFormat = `hh:mm${showSeconds ? ':ss' : ''}${useHour12 ? ' AP' : ''}`;
   const invalidInputErrorMessage = `Enter a valid time in the ${hourUnits} format: ${timeFormat}`;
-  const timeOutOfBoundsErrorMessage = `Please enter a time within the range of {0} and {1}`;
+  const timeOutOfBoundsErrorMessage = `Please enter a time within the range of {dateStartAnchor} and {dateEndAnchor}`;
 
   return {
     invalidInputErrorMessage,
@@ -119,11 +118,9 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
         } else if (timeRange && strings.timeOutOfBoundsErrorMessage) {
           const optionDate: Date = getDateFromTimeSelection(useHour12, dateStartAnchor, userInput);
           if (optionDate < dateStartAnchor || optionDate > dateEndAnchor) {
-            errorMessageToDisplay = format(
-              strings.timeOutOfBoundsErrorMessage,
-              dateStartAnchor.toString(),
-              dateEndAnchor.toString(),
-            );
+            errorMessageToDisplay = `${strings.timeOutOfBoundsErrorMessage
+              .replace('{dateStartAnchor}', dateStartAnchor.toString())
+              .replace('{dateEndAnchor}', dateEndAnchor.toString())}`;
           }
         }
         return errorMessageToDisplay;
@@ -189,17 +186,18 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
   );
 
   const evaluatePressedKey = (event: React.KeyboardEvent<IComboBox>) => {
-    // eslint-disable-next-line deprecation/deprecation
-    const charCode = event.charCode;
+    const key = event.key.toUpperCase();
+
     if (
       !onFormatDate &&
       // Only permit input of digits, space, colon, A/P/M characters
       !(
-        (charCode >= KeyCodes.zero && charCode <= KeyCodes.colon) ||
-        charCode === KeyCodes.space ||
-        charCode === KeyCodes.a ||
-        charCode === KeyCodes.m ||
-        charCode === KeyCodes.p
+        (!isNaN(Number(key)) && key.length === 1) || // Check if it's a digit
+        key === ' ' ||
+        key === ':' ||
+        key === 'A' ||
+        key === 'P' ||
+        key === 'M'
       )
     ) {
       event.preventDefault();
