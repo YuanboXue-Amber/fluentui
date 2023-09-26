@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@fluentui/react": "^8.111.2",
-    "@fluentui/react-hooks": "^8.6.29",
     "@fluentui/react-jsx-runtime": "^9.0.10",
     "@fluentui/react-theme": "^9.1.12",
     "@fluentui/react-utilities": "^9.13.3",

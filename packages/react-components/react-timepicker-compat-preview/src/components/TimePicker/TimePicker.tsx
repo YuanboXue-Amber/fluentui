@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ComboBox } from '@fluentui/react';
 import type { IComboBox, IComboBoxOption } from '@fluentui/react';
 import type { ITimePickerProps, ITimeRange, ITimePickerStrings } from './TimePicker.types';
-import { useControllableValue, useConst } from '@fluentui/react-hooks';
+import { useControllableState } from '@fluentui/react-utilities';
 import {
   TimeConstants,
   addMinutes,
@@ -55,9 +55,13 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
   const [selectedKey, setSelectedKey] = React.useState<string | number | undefined | null>();
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
-  const fallbackDateAnchor = useConst(new Date());
+  const fallbackDateAnchor = React.useRef(new Date()).current;
 
-  const [selectedTime, setSelectedTime] = useControllableValue(value, defaultValue);
+  const [selectedTime, setSelectedTime] = useControllableState({
+    state: value,
+    defaultState: defaultValue,
+    initialState: defaultValue,
+  });
 
   const optionsCount = getDropdownOptionsCount(increments, timeRange);
 
