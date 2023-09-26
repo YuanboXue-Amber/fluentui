@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ComboBox } from '@fluentui/react';
-import type { IComboBox, IComboBoxOption } from '@fluentui/react';
+import type { IComboBox } from '@fluentui/react';
 import type { ITimePickerProps, ITimeRange, ITimePickerStrings } from './TimePicker.types';
 import { useControllableState } from '@fluentui/react-utilities';
 import {
@@ -31,6 +31,14 @@ const getDefaultStrings = (useHour12: boolean, showSeconds: boolean): ITimePicke
   };
 };
 
+const getKey = (option: Date) => option.toISOString();
+const getOption = (key: string) => new Date(key);
+
+type OptionOnSelect = {
+  key: string;
+  text: string;
+};
+
 /**
  * {@docCategory TimePicker}
  */
@@ -52,7 +60,7 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
   ...rest
 }: ITimePickerProps) => {
   const [comboBoxText, setComboBoxText] = React.useState<string>('');
-  const [selectedKey, setSelectedKey] = React.useState<string | number | undefined | null>();
+  const [selectedKey, setSelectedKey] = React.useState<string | undefined>();
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const fallbackDateAnchor = React.useRef(new Date()).current;
@@ -77,7 +85,7 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
     [internalDateAnchor, increments, timeRange],
   );
 
-  const timePickerOptions: IComboBoxOption[] = React.useMemo(() => {
+  const timePickerOptions: OptionOnSelect[] = React.useMemo(() => {
     const optionsList = Array(optionsCount);
     for (let i = 0; i < optionsCount; i++) {
       optionsList[i] = 0;
@@ -89,26 +97,24 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
       const formattedTimeString = formatTimeString(option, showSeconds, useHour12);
       const optionText = onFormatDate ? onFormatDate(option) : formattedTimeString;
       return {
-        key: formattedTimeString,
+        key: getKey(option),
         text: optionText,
-        data: option,
       };
     });
   }, [dateStartAnchor, increments, optionsCount, showSeconds, onFormatDate, useHour12]);
 
   React.useEffect(() => {
     if (selectedTime && !isNaN(selectedTime.valueOf())) {
-      const formattedTimeString = formatTimeString(selectedTime, showSeconds, useHour12);
-      const comboboxOption = timePickerOptions.find((option: IComboBoxOption) => option.key === formattedTimeString);
+      const comboboxOption = timePickerOptions.find((option: OptionOnSelect) => option.key === getKey(selectedTime));
       setSelectedKey(comboboxOption?.key);
-      setComboBoxText(comboboxOption ? comboboxOption.text : formattedTimeString);
+      setComboBoxText(comboboxOption ? comboboxOption.text : formatTimeString(selectedTime, showSeconds, useHour12));
     } else {
       setSelectedKey(null);
     }
   }, [selectedTime, timePickerOptions, onFormatDate, showSeconds, useHour12]);
 
   const onInputChange = React.useCallback(
-    (ev: React.FormEvent<IComboBox>, option?: IComboBoxOption, _index?: number, input?: string): void => {
+    (ev: React.FormEvent<IComboBox>, option?: OptionOnSelect, _index?: number, input?: string): void => {
       const validateUserInput = (userInput: string): string => {
         let errorMessageToDisplay = '';
         let regex: RegExp;
@@ -157,13 +163,9 @@ export const TimePicker: React.FunctionComponent<ITimePickerProps> = ({
         setSelectedTime(errorMessageToDisplay ? new Date('invalid') : undefined);
         changedTime = new Date('invalid');
       } else {
-        let updatedTime;
-        if (option?.data instanceof Date) {
-          updatedTime = option.data;
-        } else {
-          const timeSelection = (option?.key as string) || input || '';
-          updatedTime = getDateFromTimeSelection(useHour12, dateStartAnchor, timeSelection);
-        }
+        const updatedTime = option?.key
+          ? getOption(option.key)
+          : getDateFromTimeSelection(useHour12, dateStartAnchor, input ?? '');
         setSelectedTime(updatedTime);
         changedTime = updatedTime;
       }
