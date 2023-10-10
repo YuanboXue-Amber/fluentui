@@ -124,3 +124,54 @@ export function getTimesBetween(dateStartAnchor: Date, dateEndAnchor: Date, incr
 
   return result;
 }
+
+/**
+ * Calculates a new date based on an anchor date and a user-selected time string.
+ *
+ * @param dateStartAnchor - The baseline date to calculate the offset from.
+ * @param time - A string representing the user-selected time.
+ * @param hour12 - Indicates if the time format is in 12-hour (true) or 24-hour (false).
+ *
+ * @returns A new date object adjusted to the user-selected time.
+ *
+ * @example
+ * 1) With a 24-hour format
+ * Input: hour12=false, dateStartAnchor=2023-10-06T12:00:00Z, selectedTime="15:30"
+ * Output: 2023-10-06T15:30:00Z
+ *
+ * 2) With a 12-hour format
+ * Input: hour12=true, dateStartAnchor=2023-10-06T11:00:00Z, selectedTime="2:30 PM"
+ * Output: 2023-10-06T14:30:00Z
+ */
+export function getDateFromTimeString(dateStartAnchor: Date, time: string, hour12: boolean): Date | undefined {
+  // Parse input time string
+  const timeParts = /^(\d\d?):(\d\d):?(\d\d)? ?([ap]m)?/i.exec(time);
+  if (!timeParts) {
+    // eslint-disable-next-line no-console
+    console.warn('Invalid time format');
+    return undefined;
+  }
+
+  const [, selectedHours, minutes, seconds, amPm] = timeParts;
+  let hours = selectedHours;
+
+  // Adjust for 12-hour time format if needed
+  if (hour12 && amPm) {
+    if (amPm.toLowerCase() === 'pm' && +hours !== 12) {
+      hours = (+hours + 12).toString();
+    } else if (amPm.toLowerCase() === 'am' && +hours === 12) {
+      hours = '0';
+    }
+  }
+
+  // Create a new Date object based on the anchor date and set to the parsed time
+  const adjustedDate = new Date(dateStartAnchor);
+  adjustedDate.setHours(+hours, +minutes, seconds ? +seconds : 0);
+
+  // Adjust to the next day if the selected time is before the anchor time
+  if (adjustedDate < dateStartAnchor) {
+    adjustedDate.setDate(adjustedDate.getDate() + 1);
+  }
+
+  return adjustedDate;
+}
