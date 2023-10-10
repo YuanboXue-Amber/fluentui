@@ -73,11 +73,11 @@ describe('Time Utilities', () => {
     });
 
     it('should format time in 24-hour format with seconds', () => {
-      expect(formatTimeString(testDate, true)).toBe('23:45:12');
+      expect(formatTimeString(testDate, { showSeconds: true })).toBe('23:45:12');
     });
 
     it('should format time in 12-hour format with seconds', () => {
-      expect(formatTimeString(testDate, true, true)).toBe('11:45:12 PM');
+      expect(formatTimeString(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
     });
 
     it('should format midnight correctly in 24-hour format', () => {

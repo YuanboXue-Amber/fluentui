@@ -47,7 +47,7 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
       getTimesBetween(dateStartAnchor, dateEndAnchor, increment).map(time => ({
         date: time,
         key: dateToKey(time),
-        text: formatTimeString(time, showSeconds, hour12),
+        text: formatTimeString(time, { showSeconds, hour12 }),
       })),
     [dateStartAnchor, dateEndAnchor, increment, showSeconds, hour12],
   );
@@ -65,7 +65,10 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
 
   const handleOptionSelect: ComboboxProps['onOptionSelect'] = React.useCallback(
     (e, data) => {
-      const timeSelectionData: TimeSelectionData = { selectedTime: keyToDate(data.optionValue) };
+      const timeSelectionData: TimeSelectionData = {
+        selectedTime: keyToDate(data.optionValue),
+        selectedTimeText: data.optionText,
+      };
       onTimeSelect?.(e, timeSelectionData);
       setSelectedTime(timeSelectionData.selectedTime);
     },

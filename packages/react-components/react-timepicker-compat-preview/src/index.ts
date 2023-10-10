@@ -1,4 +1,10 @@
-export { TimePicker, timePickerClassNames, useTimePickerStyles_unstable, useTimePicker_unstable } from './TimePicker';
+export {
+  TimePicker,
+  timePickerClassNames,
+  useTimePickerStyles_unstable,
+  useTimePicker_unstable,
+  formatTimeString,
+} from './TimePicker';
 export type {
   TimePickerProps,
   TimePickerSlots,
