@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useControllableState } from '@fluentui/react-utilities';
+import { mergeCallbacks, useControllableState } from '@fluentui/react-utilities';
 import type { Hour, TimePickerOption, TimePickerProps, TimePickerState, TimeSelectionData } from './TimePicker.types';
 import { ComboboxProps, useCombobox_unstable, Option } from '@fluentui/react-combobox';
 import {
@@ -96,12 +96,7 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     ref,
   );
 
-  const {
-    activeOption,
-    setActiveOption,
-    value,
-    root: { onKeyDown: onKeyDownInState },
-  } = state;
+  const { activeOption, setActiveOption, value } = state;
 
   // Combobox always shows activeOption in dropdown even if it doesn't match input value, and Enter key will select it.
   // For freeform TimePicker we allow the input value as the selected time. So we clear activeOption when input does not match any option.
@@ -113,15 +108,13 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
 
   const selectTimeFromValue = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (value) {
-        const timeSelectionData: TimeSelectionData = {
-          selectedTime: getDateFromTimeString(dateStartAnchor, value, hour12),
-          selectedTimeText: value,
-        };
+      const timeSelectionData: TimeSelectionData = {
+        selectedTime: value ? getDateFromTimeString(dateStartAnchor, value, hour12) : undefined,
+        selectedTimeText: value,
+      };
 
-        setSelectedTime(timeSelectionData.selectedTime);
-        onTimeSelect?.(e, timeSelectionData);
-      }
+      setSelectedTime(timeSelectionData.selectedTime);
+      onTimeSelect?.(e, timeSelectionData);
     },
     [dateStartAnchor, hour12, onTimeSelect, setSelectedTime, value],
   );
@@ -131,12 +124,11 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
       if (freeform && !activeOption && (e.key === 'Enter' || e.key === 'Tab')) {
         selectTimeFromValue(e);
       }
-      onKeyDownInState?.(e);
     },
-    [activeOption, freeform, onKeyDownInState, selectTimeFromValue],
+    [activeOption, freeform, selectTimeFromValue],
   );
 
-  state.root.onKeyDown = handleKeyDown;
+  state.root.onKeyDown = mergeCallbacks(handleKeyDown, state.root.onKeyDown);
 
   return state;
 };
