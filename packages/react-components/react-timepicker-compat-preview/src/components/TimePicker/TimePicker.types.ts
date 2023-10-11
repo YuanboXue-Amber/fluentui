@@ -119,6 +119,11 @@ export type TimePickerProps = Omit<
      * Callback for when a time selection is made.
      */
     onTimeSelect?: (event: TimeSelectionEvents, data: TimeSelectionData) => void;
+
+    /**
+     * Callback to localize the date strings displayed (in dropdown options and input).
+     */
+    onFormatDate?: (date: Date) => string;
   };
 
 /**
@@ -130,6 +135,11 @@ export type TimePickerState = ComboboxState &
      * The date in which all dropdown options are based off of.
      */
     dateStartAnchor: Date;
+
+    /**
+     * localize the date strings displayed
+     */
+    dateToText: (date: Date) => string;
 
     /**
      * Ref that stores the selected time text

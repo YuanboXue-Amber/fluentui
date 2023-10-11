@@ -34,6 +34,7 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     selectedTime: selectedTimeInProps,
     showSeconds = false,
     startHour = 0,
+    onFormatDate,
     ...rest
   } = props;
   const { freeform = false } = rest;
@@ -44,14 +45,23 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     endHour,
   );
 
+  const dateToText = React.useCallback(
+    (dateTime: Date) => {
+      if (onFormatDate) {
+        return onFormatDate(dateTime);
+      }
+      return formatTimeString(dateTime, { showSeconds, hour12 });
+    },
+    [hour12, onFormatDate, showSeconds],
+  );
   const options: TimePickerOption[] = React.useMemo(
     () =>
       getTimesBetween(dateStartAnchor, dateEndAnchor, increment).map(time => ({
         date: time,
         key: dateToKey(time),
-        text: formatTimeString(time, { showSeconds, hour12 }),
+        text: dateToText(time),
       })),
-    [dateStartAnchor, dateEndAnchor, increment, showSeconds, hour12],
+    [dateStartAnchor, dateEndAnchor, increment, dateToText],
   );
 
   const [selectedTime, setSelectedTime] = useControllableState<Date | undefined>({
@@ -109,6 +119,7 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
   const state: TimePickerState = {
     ...baseState,
     dateStartAnchor,
+    dateToText,
     freeform,
     hour12,
     selectedTimeTextRef,
@@ -148,14 +159,15 @@ const useStableDateAnchor = (providedDate: Date | undefined, startHour: Hour, en
 const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProps['onTimeSelect']) => {
   const {
     activeOption,
-    setActiveOption,
-    value,
-    setValue,
-    options,
     dateStartAnchor,
+    dateToText,
     freeform,
     hour12,
+    options,
     selectedTimeTextRef,
+    setActiveOption,
+    setValue,
+    value,
   } = state;
 
   // Base Combobox has activeOption default to first option in dropdown even if it doesn't match input value, and Enter key will select it.
@@ -173,12 +185,8 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
         return;
       }
 
-      // TODO: maybe instead of finding an option, we just format the selectedTime and use that as the selectedTimeText?
       const selectedTime = value ? getDateFromTimeString(dateStartAnchor, value, hour12) : undefined;
-      const selectedOption = selectedTime
-        ? options.find(option => option.value === dateToKey(selectedTime))
-        : undefined;
-      const selectedTimeText = selectedOption ? selectedOption.text : value;
+      const selectedTimeText = selectedTime ? dateToText(selectedTime) : value;
 
       if (selectedTimeText !== value) {
         setValue(selectedTimeText);
@@ -188,7 +196,7 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
         callback?.(e, { selectedTime, selectedTimeText });
       }
     },
-    [callback, dateStartAnchor, freeform, hour12, options, selectedTimeTextRef, setValue, value],
+    [callback, dateStartAnchor, dateToText, freeform, hour12, selectedTimeTextRef, setValue, value],
   );
 
   const handleKeyDown: ComboboxProps['onKeyDown'] = React.useCallback(
