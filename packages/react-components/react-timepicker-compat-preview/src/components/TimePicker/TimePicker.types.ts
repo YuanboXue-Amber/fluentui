@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { ComboboxSlots, ComboboxState, ComboboxProps, SelectionEvents } from '@fluentui/react-combobox';
 
 export type Hour =
@@ -49,7 +50,7 @@ export type TimePickerOption = {
 
 export type TimePickerSlots = ComboboxSlots;
 
-export type TimeSelectionEvents = SelectionEvents;
+export type TimeSelectionEvents = SelectionEvents | React.FocusEvent<HTMLElement>;
 export type TimeSelectionData = {
   selectedTime: Date | undefined;
   selectedTimeText: string | undefined;
@@ -123,4 +124,15 @@ export type TimePickerProps = Omit<
 /**
  * State used in rendering TimePicker
  */
-export type TimePickerState = ComboboxState;
+export type TimePickerState = ComboboxState &
+  Required<Pick<TimePickerProps, 'freeform' | 'hour12'>> & {
+    /**
+     * The date in which all dropdown options are based off of.
+     */
+    dateStartAnchor: Date;
+
+    /**
+     * Ref that stores the selected time text
+     */
+    selectedTimeTextRef: React.MutableRefObject<string | undefined>;
+  };
