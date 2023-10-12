@@ -35,7 +35,7 @@ export type TimePickerOption = {
   /**
    * The Date object associated with the option.
    */
-  date: Date;
+  date: Date | undefined;
 
   /**
    * A unique identifier for the option.
@@ -48,12 +48,23 @@ export type TimePickerOption = {
   text: string;
 };
 
+/**
+ * Error types returned by the `onValidationResult` callback.
+ */
+export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds';
+
+export type TimeStringValidationResult = {
+  date?: Date;
+  error?: TimePickerErrorType;
+};
+
 export type TimePickerSlots = ComboboxSlots;
 
 export type TimeSelectionEvents = SelectionEvents | React.FocusEvent<HTMLElement>;
 export type TimeSelectionData = {
   selectedTime: Date | undefined;
   selectedTimeText: string | undefined;
+  error: TimePickerErrorType | undefined;
 };
 
 export type TimeFormatOptions = {
@@ -121,21 +132,26 @@ export type TimePickerProps = Omit<
     onTimeSelect?: (event: TimeSelectionEvents, data: TimeSelectionData) => void;
 
     /**
-     * Callback to localize the date strings displayed (in dropdown options and input).
+     * Custom the date strings displayed (in dropdown options and input).
      */
-    onFormatDate?: (date: Date) => string;
+    formatDateToTimeString?: (date: Date) => string;
+
+    /**
+     * Custom validation for the input time string from user in freeform TimePicker.
+     */
+    validateFreeFormTime?: (time: string | undefined) => TimeStringValidationResult;
+
+    /**
+     * Custom validation for the time selected from dropdown.
+     */
+    validateOption?: (option: TimePickerOption) => TimePickerErrorType;
   };
 
 /**
  * State used in rendering TimePicker
  */
 export type TimePickerState = ComboboxState &
-  Required<Pick<TimePickerProps, 'freeform' | 'hour12'>> & {
-    /**
-     * The date in which all dropdown options are based off of.
-     */
-    dateStartAnchor: Date;
-
+  Required<Pick<TimePickerProps, 'freeform' | 'validateFreeFormTime'>> & {
     /**
      * localize the date strings displayed
      */

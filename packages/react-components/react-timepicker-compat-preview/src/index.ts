@@ -3,7 +3,7 @@ export {
   timePickerClassNames,
   useTimePickerStyles_unstable,
   useTimePicker_unstable,
-  formatTimeString,
+  getFormattedTimeStringFromDate,
 } from './TimePicker';
 export type {
   TimePickerProps,
@@ -11,4 +11,7 @@ export type {
   TimePickerState,
   TimeSelectionData,
   TimeSelectionEvents,
+  TimePickerOption,
+  TimePickerErrorType,
+  TimeStringValidationResult,
 } from './TimePicker';

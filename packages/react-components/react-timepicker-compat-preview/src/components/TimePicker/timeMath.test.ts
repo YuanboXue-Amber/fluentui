@@ -1,10 +1,11 @@
 import {
   dateToKey,
   keyToDate,
-  formatTimeString,
+  getFormattedTimeStringFromDate,
   getDateEndAnchor,
   getDateStartAnchor,
   getTimesBetween,
+  getDateFromTimeString,
 } from './timeMath';
 
 describe('Time Utilities', () => {
@@ -65,24 +66,24 @@ describe('Time Utilities', () => {
     });
   });
 
-  describe('formatTimeString', () => {
+  describe('getFormattedTimeStringFromDate', () => {
     const testDate = new Date(2023, 9, 6, 23, 45, 12);
 
     it('should format time in 24-hour format without seconds', () => {
-      expect(formatTimeString(testDate)).toBe('23:45');
+      expect(getFormattedTimeStringFromDate(testDate)).toBe('23:45');
     });
 
     it('should format time in 24-hour format with seconds', () => {
-      expect(formatTimeString(testDate, { showSeconds: true })).toBe('23:45:12');
+      expect(getFormattedTimeStringFromDate(testDate, { showSeconds: true })).toBe('23:45:12');
     });
 
     it('should format time in 12-hour format with seconds', () => {
-      expect(formatTimeString(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
+      expect(getFormattedTimeStringFromDate(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
     });
 
     it('should format midnight correctly in 24-hour format', () => {
       const midnight = new Date(2023, 9, 7, 0, 0, 0);
-      expect(formatTimeString(midnight)).toBe('00:00');
+      expect(getFormattedTimeStringFromDate(midnight)).toBe('00:00');
     });
   });
 
@@ -134,6 +135,42 @@ describe('Time Utilities', () => {
       expect(result[0].getMinutes()).toBe(30);
       expect(result[1].getHours()).toBe(0);
       expect(result[1].getMinutes()).toBe(0);
+    });
+  });
+
+  describe('getDateFromTimeString', () => {
+    const dateStartAnchor = new Date('2023-10-06T12:00:00Z');
+    const dateEndAnchor = new Date('2023-10-07T12:00:00Z');
+
+    it('returns a valid date when given a valid time string', () => {
+      const result = getDateFromTimeString('2:30 PM', dateStartAnchor, dateEndAnchor, {
+        hour12: true,
+        showSeconds: false,
+      });
+      expect(result.date?.getUTCMinutes()).toBe(30);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('returns an error when no time string is provided', () => {
+      const result = getDateFromTimeString(undefined, dateStartAnchor, dateEndAnchor, {});
+      expect(result.date).toBeUndefined();
+      expect(result.error).toBe('invalid-input');
+    });
+
+    it('returns an error for an invalid time string', () => {
+      const result = getDateFromTimeString('25:30', dateStartAnchor, dateEndAnchor, {});
+      expect(result.date).toBeUndefined();
+      expect(result.error).toBe('invalid-input');
+    });
+
+    it('returns a date in the next day and an out-of-bounds error when the time is before the dateStartAnchor', () => {
+      const anchor = new Date('2023-10-06T12:00:00Z');
+      const result = getDateFromTimeString('1:30 AM', anchor, anchor, {
+        hour12: true,
+        showSeconds: false,
+      });
+      expect(result.date?.getUTCMinutes()).toBe(30);
+      expect(result.error).toBe('out-of-bounds');
     });
   });
 });

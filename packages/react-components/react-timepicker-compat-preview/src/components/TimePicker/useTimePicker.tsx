@@ -5,7 +5,7 @@ import { ComboboxProps, useCombobox_unstable, Option } from '@fluentui/react-com
 import {
   dateToKey,
   keyToDate,
-  formatTimeString,
+  getFormattedTimeStringFromDate,
   getDateStartAnchor,
   getDateEndAnchor,
   getTimesBetween,
@@ -30,11 +30,13 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     endHour = 24,
     hour12 = false,
     increment = 30,
+    formatDateToTimeString,
     onTimeSelect,
+    validateOption,
+    validateFreeFormTime: validateFreeFormTimeInProps,
     selectedTime: selectedTimeInProps,
     showSeconds = false,
     startHour = 0,
-    onFormatDate,
     ...rest
   } = props;
   const { freeform = false } = rest;
@@ -46,13 +48,11 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
   );
 
   const dateToText = React.useCallback(
-    (dateTime: Date) => {
-      if (onFormatDate) {
-        return onFormatDate(dateTime);
-      }
-      return formatTimeString(dateTime, { showSeconds, hour12 });
-    },
-    [hour12, onFormatDate, showSeconds],
+    (dateTime: Date) =>
+      formatDateToTimeString
+        ? formatDateToTimeString(dateTime)
+        : getFormattedTimeStringFromDate(dateTime, { showSeconds, hour12 }),
+    [hour12, formatDateToTimeString, showSeconds],
   );
   const options: TimePickerOption[] = React.useMemo(
     () =>
@@ -93,13 +93,16 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
         return;
       }
 
+      const date = keyToDate(data.optionValue);
+      const text = data.optionText;
       const timeSelectionData: TimeSelectionData = {
-        selectedTime: keyToDate(data.optionValue),
-        selectedTimeText: data.optionText,
+        selectedTime: date,
+        selectedTimeText: text,
+        error: validateOption?.({ date, text, key: data.optionValue }),
       };
       selectTime(e, timeSelectionData);
     },
-    [freeform, selectTime],
+    [freeform, validateOption, selectTime],
   );
 
   const baseState = useCombobox_unstable(
@@ -116,12 +119,16 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     ref,
   );
 
+  const defaultValidateTime = React.useCallback(
+    (time: string | undefined) => getDateFromTimeString(time, dateStartAnchor, dateEndAnchor, { hour12, showSeconds }),
+    [dateEndAnchor, dateStartAnchor, hour12, showSeconds],
+  );
+
   const state: TimePickerState = {
     ...baseState,
-    dateStartAnchor,
     dateToText,
     freeform,
-    hour12,
+    validateFreeFormTime: validateFreeFormTimeInProps ?? defaultValidateTime,
     selectedTimeTextRef,
   };
 
@@ -159,10 +166,9 @@ const useStableDateAnchor = (providedDate: Date | undefined, startHour: Hour, en
 const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProps['onTimeSelect']) => {
   const {
     activeOption,
-    dateStartAnchor,
     dateToText,
     freeform,
-    hour12,
+    validateFreeFormTime,
     options,
     selectedTimeTextRef,
     setActiveOption,
@@ -185,18 +191,19 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
         return;
       }
 
-      const selectedTime = value ? getDateFromTimeString(dateStartAnchor, value, hour12) : undefined;
-      const selectedTimeText = selectedTime ? dateToText(selectedTime) : value;
+      const { date: selectedTime, error } = validateFreeFormTime(value);
 
+      const selectedTimeText = selectedTime ? dateToText(selectedTime) : value;
       if (selectedTimeText !== value) {
         setValue(selectedTimeText);
       }
 
+      // Only triggers callback when the text in input has changed.
       if (selectedTimeTextRef.current !== selectedTimeText) {
-        callback?.(e, { selectedTime, selectedTimeText });
+        callback?.(e, { selectedTime, selectedTimeText, error });
       }
     },
-    [callback, dateStartAnchor, dateToText, freeform, hour12, selectedTimeTextRef, setValue, value],
+    [callback, dateToText, freeform, validateFreeFormTime, selectedTimeTextRef, setValue, value],
   );
 
   const handleKeyDown: ComboboxProps['onKeyDown'] = React.useCallback(

@@ -13,13 +13,23 @@ import type { SelectionEvents } from '@fluentui/react-combobox';
 import type { SlotClassNames } from '@fluentui/react-utilities';
 
 // @public
-export function formatTimeString(date: Date, options?: TimeFormatOptions): string;
+export function getFormattedTimeStringFromDate(date: Date, options?: TimeFormatOptions): string;
 
 // @public
 export const TimePicker: ForwardRefComponent<TimePickerProps>;
 
 // @public (undocumented)
 export const timePickerClassNames: SlotClassNames<TimePickerSlots>;
+
+// @public
+export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds';
+
+// @public
+export type TimePickerOption = {
+    date: Date | undefined;
+    key: string;
+    text: string;
+};
 
 // @public
 export type TimePickerProps = Omit<ComboboxProps, 'children' | 'defaultSelectedOptions' | 'multiselect' | 'onOptionSelect' | 'selectedOptions'> & TimeFormatOptions & {
@@ -30,22 +40,35 @@ export type TimePickerProps = Omit<ComboboxProps, 'children' | 'defaultSelectedO
     selectedTime?: Date;
     defaultSelectedTime?: Date;
     onTimeSelect?: (event: TimeSelectionEvents, data: TimeSelectionData) => void;
+    formatDateToTimeString?: (date: Date) => string;
+    validateFreeFormTime?: (time: string | undefined) => TimeStringValidationResult;
+    validateOption?: (option: TimePickerOption) => TimePickerErrorType;
 };
 
 // @public (undocumented)
 export type TimePickerSlots = ComboboxSlots;
 
 // @public
-export type TimePickerState = ComboboxState;
+export type TimePickerState = ComboboxState & Required<Pick<TimePickerProps, 'freeform' | 'validateFreeFormTime'>> & {
+    dateToText: (date: Date) => string;
+    selectedTimeTextRef: React_2.MutableRefObject<string | undefined>;
+};
 
 // @public (undocumented)
 export type TimeSelectionData = {
     selectedTime: Date | undefined;
     selectedTimeText: string | undefined;
+    error: TimePickerErrorType | undefined;
 };
 
 // @public (undocumented)
-export type TimeSelectionEvents = SelectionEvents;
+export type TimeSelectionEvents = SelectionEvents | React_2.FocusEvent<HTMLElement>;
+
+// @public (undocumented)
+export type TimeStringValidationResult = {
+    date?: Date;
+    error?: TimePickerErrorType;
+};
 
 // @public
 export const useTimePicker_unstable: (props: TimePickerProps, ref: React_2.Ref<HTMLInputElement>) => TimePickerState;
