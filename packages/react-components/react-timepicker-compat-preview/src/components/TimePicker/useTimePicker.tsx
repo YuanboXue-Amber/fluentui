@@ -142,11 +142,14 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
  * The hook ensures that the memoization remains consistent even if new Date objects representing the same date are provided.
  */
 const useStableDateAnchor = (providedDate: Date | undefined, startHour: Hour, endHour: Hour) => {
-  const fallbackDateAnchorRef = React.useRef(new Date());
+  const [fallbackDateAnchor] = React.useState(() => new Date());
 
   // Convert the Date object to a stable key representation. This ensures that the memoization remains stable when a new Date object representing the same date is passed in.
   const dateAnchorKey = dateToKey(providedDate);
-  const dateAnchor = React.useMemo(() => keyToDate(dateAnchorKey) ?? fallbackDateAnchorRef.current, [dateAnchorKey]);
+  const dateAnchor = React.useMemo(
+    () => keyToDate(dateAnchorKey) ?? fallbackDateAnchor,
+    [dateAnchorKey, fallbackDateAnchor],
+  );
 
   const dateStartAnchor = React.useMemo(() => getDateStartAnchor(dateAnchor, startHour), [dateAnchor, startHour]);
   const dateEndAnchor = React.useMemo(
@@ -179,11 +182,12 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
   // Base Combobox has activeOption default to first option in dropdown even if it doesn't match input value, and Enter key will select it.
   // This effect ensures that the activeOption is cleared when the input doesn't match any option.
   // This behavior is specific to a freeform TimePicker where the input value is treated as a valid time even if it's not in the dropdown.
+  const isValueOptionPrefix = value ? options.some(({ text }) => text.indexOf(value) === 0) : false;
   React.useEffect(() => {
-    if (freeform && value && !options.find(({ text }) => text.indexOf(value) === 0)) {
+    if (freeform && value && !isValueOptionPrefix) {
       setActiveOption(undefined);
     }
-  }, [freeform, options, setActiveOption, value]);
+  }, [freeform, isValueOptionPrefix, setActiveOption, value]);
 
   const selectTimeFromValue = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
