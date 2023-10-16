@@ -95,6 +95,7 @@ export const useOption_unstable = (props: OptionProps, ref: React.Ref<HTMLElemen
 
     // handle selection change
     selectOption(event, optionData);
+    console.log('[Combobox - selectOption]', '(useOption L97 onClick)', optionData);
 
     props.onClick?.(event);
   };

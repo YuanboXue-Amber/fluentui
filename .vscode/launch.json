@@ -26,14 +26,14 @@
       "cwd": "${fileDirname}",
       "stopOnEntry": false,
       "args": ["-i", "--testPathPattern=\\b${fileBasenameNoExtension}", "--watch"],
-      "runtimeExecutable": null,
       "runtimeArgs": ["--nolazy", "--inspect"],
       "env": {
         "NODE_ENV": "development"
       },
       "sourceMaps": true,
       "outputCapture": "std",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "runtimeExecutable": "/Users/yuanboxue/.nvm/versions/node/v16.18.1/bin/node"
     },
     {
       "name": "Debug current open test (v0)",

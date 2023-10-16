@@ -154,10 +154,12 @@ export function useTriggerListboxSlots(
         // fallthrough
         case 'Select':
           activeOption && selectOption(event, activeOption);
+          console.log('[Combobox - selectOption]', '(useTriggerListboxSlots L156 onKeyDown Select)', activeOption);
           event.preventDefault();
           break;
         case 'Tab':
           !multiselect && activeOption && selectOption(event, activeOption);
+          console.log('[Combobox - selectOption]', '(useTriggerListboxSlots L62 onKeyDown Tab)', activeOption);
           break;
         default:
           newIndex = getIndexFromAction(action, activeIndex, maxIndex);

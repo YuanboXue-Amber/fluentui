@@ -47,6 +47,7 @@ export const useListbox_unstable = (props: ListboxProps, ref: React.Ref<HTMLElem
       case 'Select':
       case 'CloseSelect':
         activeOption && selectOption(event, activeOption);
+        console.log('[Combobox - selectOption]', '(useListbox L50 onKeyDown CloseSelect)', activeOption);
         break;
       default:
         newIndex = getIndexFromAction(action, activeIndex, maxIndex);
