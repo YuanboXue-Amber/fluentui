@@ -1,7 +1,7 @@
 import {
   dateToKey,
   keyToDate,
-  getFormattedTimeStringFromDate,
+  formatDateToTimeString,
   getDateEndAnchor,
   getDateStartAnchor,
   getTimesBetween,
@@ -66,24 +66,24 @@ describe('Time Utilities', () => {
     });
   });
 
-  describe('getFormattedTimeStringFromDate', () => {
+  describe('formatDateToTimeString', () => {
     const testDate = new Date(2023, 9, 6, 23, 45, 12);
 
     it('should format time in 24-hour format without seconds', () => {
-      expect(getFormattedTimeStringFromDate(testDate)).toBe('23:45');
+      expect(formatDateToTimeString(testDate)).toBe('23:45');
     });
 
     it('should format time in 24-hour format with seconds', () => {
-      expect(getFormattedTimeStringFromDate(testDate, { showSeconds: true })).toBe('23:45:12');
+      expect(formatDateToTimeString(testDate, { showSeconds: true })).toBe('23:45:12');
     });
 
     it('should format time in 12-hour format with seconds', () => {
-      expect(getFormattedTimeStringFromDate(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
+      expect(formatDateToTimeString(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
     });
 
     it('should format midnight correctly in 24-hour format', () => {
       const midnight = new Date(2023, 9, 7, 0, 0, 0);
-      expect(getFormattedTimeStringFromDate(midnight)).toBe('00:00');
+      expect(formatDateToTimeString(midnight)).toBe('00:00');
     });
 
     it('should format time in Japanese locale', () => {
@@ -94,7 +94,7 @@ describe('Time Utilities', () => {
         return toLocaleTimeString.call(this, 'ja-JP', options);
       });
 
-      expect(getFormattedTimeStringFromDate(testDate, { showSeconds: true, hour12: true })).toBe('午後11:45:12');
+      expect(formatDateToTimeString(testDate, { showSeconds: true, hour12: true })).toBe('午後11:45:12');
 
       toLocaleTimeStringMock.mockClear();
     });

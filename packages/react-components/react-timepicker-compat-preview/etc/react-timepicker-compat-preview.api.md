@@ -13,7 +13,7 @@ import type { SelectionEvents } from '@fluentui/react-combobox';
 import type { SlotClassNames } from '@fluentui/react-utilities';
 
 // @public
-export function getFormattedTimeStringFromDate(date: Date, options?: TimeFormatOptions): string;
+export function formatDateToTimeString(date: Date, options?: TimeFormatOptions): string;
 
 // @public
 export const TimePicker: ForwardRefComponent<TimePickerProps>;

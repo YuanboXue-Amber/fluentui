@@ -40,11 +40,11 @@ export function keyToDate(key: string): Date | undefined {
  *
  * @example
  * const date = new Date(2023, 9, 6, 23, 45, 12);
- * getFormattedTimeStringFromDate(date);                         // Returns "23:45"
- * getFormattedTimeStringFromDate(date, { showSeconds: true });  // Returns "23:45:12"
- * getFormattedTimeStringFromDate(date, { hour12: true, showSeconds: true }); // Returns "11:45:12 PM"
+ * formatDateToTimeString(date);                         // Returns "23:45"
+ * formatDateToTimeString(date, { showSeconds: true });  // Returns "23:45:12"
+ * formatDateToTimeString(date, { hour12: true, showSeconds: true }); // Returns "11:45:12 PM"
  */
-export function getFormattedTimeStringFromDate(date: Date, options: TimeFormatOptions = {}): string {
+export function formatDateToTimeString(date: Date, options: TimeFormatOptions = {}): string {
   const { hour12 = false, showSeconds = false } = options;
   const timeFormatOptions: Intl.DateTimeFormatOptions = {
     hour: 'numeric',

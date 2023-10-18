@@ -5,7 +5,7 @@ import { ComboboxProps, useCombobox_unstable, Option } from '@fluentui/react-com
 import {
   dateToKey,
   keyToDate,
-  getFormattedTimeStringFromDate,
+  formatDateToTimeString as defaultFormatDateToTimeString,
   getDateStartAnchor,
   getDateEndAnchor,
   getTimesBetween,
@@ -51,7 +51,7 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     (dateTime: Date) =>
       formatDateToTimeString
         ? formatDateToTimeString(dateTime)
-        : getFormattedTimeStringFromDate(dateTime, { showSeconds, hour12 }),
+        : defaultFormatDateToTimeString(dateTime, { showSeconds, hour12 }),
     [hour12, formatDateToTimeString, showSeconds],
   );
   const options: TimePickerOption[] = React.useMemo(
@@ -65,8 +65,8 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
   );
 
   const [selectedTime, setSelectedTime] = useControllableState<Date | undefined>({
-    state: props.selectedTime,
-    defaultState: props.defaultSelectedTime,
+    state: selectedTimeInProps,
+    defaultState: defaultSelectedTimeInProps,
     initialState: undefined,
   });
 
