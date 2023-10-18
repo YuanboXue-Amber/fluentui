@@ -35,7 +35,7 @@ export type TimePickerOption = {
   /**
    * The Date object associated with the option.
    */
-  date: Date | undefined;
+  date: Date | null;
 
   /**
    * A unique identifier for the option.
@@ -54,7 +54,7 @@ export type TimePickerOption = {
 export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds';
 
 export type TimeStringValidationResult = {
-  date?: Date;
+  date: Date | null;
   error?: TimePickerErrorType;
 };
 
@@ -62,7 +62,7 @@ export type TimePickerSlots = ComboboxSlots;
 
 export type TimeSelectionEvents = SelectionEvents | React.FocusEvent<HTMLElement>;
 export type TimeSelectionData = {
-  selectedTime: Date | undefined;
+  selectedTime: Date | null;
   selectedTimeText: string | undefined;
   error: TimePickerErrorType | undefined;
 };
@@ -133,7 +133,7 @@ export type TimePickerProps = Omit<
     /**
      * Currently selected time in the TimePicker.
      */
-    selectedTime?: Date;
+    selectedTime?: Date | null;
 
     /**
      * Default selected time in the TimePicker, for uncontrolled scenarios.

@@ -43,7 +43,7 @@ const ControlledSelection = () => {
 
   const [anchor] = React.useState(new Date('November 25, 2023'));
 
-  const [selectedTime, setSelectedTime] = React.useState<Date | undefined>(new Date('November 25, 2023 12:30:00'));
+  const [selectedTime, setSelectedTime] = React.useState<Date | null>(new Date('November 25, 2023 12:30:00'));
   const [value, setValue] = React.useState<string>(selectedTime ? formatDateToTimeString(selectedTime) : '');
 
   const onTimeSelect: TimePickerProps['onTimeSelect'] = (_ev, data) => {

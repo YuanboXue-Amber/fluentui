@@ -26,7 +26,7 @@ export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds';
 
 // @public
 export type TimePickerOption = {
-    date: Date | undefined;
+    date: Date | null;
     key: string;
     text: string;
 };
@@ -38,7 +38,7 @@ export type TimePickerProps = Omit<ComboboxProps, 'children' | 'defaultSelectedO
     endHour?: Hour;
     increment?: number;
     dateAnchor?: Date;
-    selectedTime?: Date;
+    selectedTime?: Date | null;
     defaultSelectedTime?: Date;
     onTimeSelect?: (event: TimeSelectionEvents, data: TimeSelectionData) => void;
     formatDateToTimeString?: (date: Date) => string;
@@ -56,7 +56,7 @@ export type TimePickerState = ComboboxState & Required<Pick<TimePickerProps, 'fr
 
 // @public (undocumented)
 export type TimeSelectionData = {
-    selectedTime: Date | undefined;
+    selectedTime: Date | null;
     selectedTimeText: string | undefined;
     error: TimePickerErrorType | undefined;
 };
@@ -66,7 +66,7 @@ export type TimeSelectionEvents = SelectionEvents | React_2.FocusEvent<HTMLEleme
 
 // @public (undocumented)
 export type TimeStringValidationResult = {
-    date?: Date;
+    date: Date | null;
     error?: TimePickerErrorType;
 };
 
