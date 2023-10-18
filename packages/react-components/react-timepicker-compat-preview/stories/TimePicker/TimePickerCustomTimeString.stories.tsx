@@ -1,10 +1,41 @@
 import * as React from 'react';
+import { useId, makeStyles } from '@fluentui/react-components';
 import { TimePicker } from '@fluentui/react-timepicker-compat-preview';
 
+const useStyles = makeStyles({
+  root: {
+    display: 'grid',
+    justifyItems: 'start',
+    rowGap: '2px',
+    maxWidth: '400px',
+  },
+});
+
+const formatDateToTimeString = (date: Date) => {
+  const localeTimeString = date.toLocaleTimeString();
+  if (date.getHours() < 12) {
+    return `Morning: ${localeTimeString}`;
+  }
+  return `Afternoon: ${localeTimeString}`;
+};
+
 export const CustomTimeString = () => {
-  const [anchor] = React.useState(new Date(2023, 1, 1, 12, 0, 0, 0));
-  const formatDate = React.useCallback((date: Date) => `Custom prefix + ${date.toLocaleTimeString()}`, []);
-  return <TimePicker startHour={8} endHour={20} dateAnchor={anchor} formatDateToTimeString={formatDate} />;
+  const id = useId('timepicker-custom-time-string-');
+  const styles = useStyles();
+
+  const [anchor] = React.useState(new Date(2023, 1, 1));
+  return (
+    <div className={styles.root}>
+      <label id={id}>Coffee time</label>
+      <TimePicker
+        aria-labelledby={id}
+        startHour={9}
+        endHour={15}
+        dateAnchor={anchor}
+        formatDateToTimeString={formatDateToTimeString}
+      />
+    </div>
+  );
 };
 
 CustomTimeString.parameters = {

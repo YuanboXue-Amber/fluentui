@@ -82,12 +82,14 @@ export type TimeFormatOptions = {
   // 0:00pm vs 12:00pm and 0:00am vs 24:00am
 };
 
+export type TimePickerChildrenProps = { options: TimePickerOption[] };
+
 /**
  * TimePicker Props
  */
 export type TimePickerProps = Omit<
   ComboboxProps,
-  // Omit children as TimePicker has predefined children
+  // Omit children as TimePicker supports children as render function
   | 'children'
   // Omit selection props as TimePicker has `selectedTime` props
   | 'defaultSelectedOptions'
@@ -96,6 +98,18 @@ export type TimePickerProps = Omit<
   | 'selectedOptions'
 > &
   TimeFormatOptions & {
+    /**
+     * TimePicker has default children. It can be customized as either:
+     * 1. A single element
+     * 2. A render function that will receive properties and must return a valid element or null
+     * 3. null or undefined
+     */
+    children?:
+      | React.ReactElement
+      | React.ReactElement[]
+      | ((props: TimePickerChildrenProps) => React.ReactElement[] | React.ReactElement | null)
+      | null;
+
     /**
      * Start hour (inclusive) for the time range, 0-24.
      */
