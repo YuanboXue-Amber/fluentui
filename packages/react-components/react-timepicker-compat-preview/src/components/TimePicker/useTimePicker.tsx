@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { mergeCallbacks, useControllableState, useMergedRefs } from '@fluentui/react-utilities';
+import { Enter } from '@fluentui/keyboard-keys';
 import type { Hour, TimePickerOption, TimePickerProps, TimePickerState, TimeSelectionData } from './TimePicker.types';
 import { ComboboxProps, useCombobox_unstable, Option } from '@fluentui/react-combobox';
 import {
@@ -71,12 +72,12 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
     initialState: undefined,
   });
 
-  const selectedTimeTextRef = React.useRef<string | undefined>(undefined);
+  const [selectedTimeText, setSelectedTimeText] = React.useState<string | undefined>(undefined);
 
   const selectTime: TimePickerProps['onTimeSelect'] = React.useCallback(
     (e, data) => {
       setSelectedTime(data.selectedTime);
-      selectedTimeTextRef.current = data.selectedTimeText;
+      setSelectedTimeText(data.selectedTimeText);
       onTimeSelect?.(e, data);
     },
     [onTimeSelect, setSelectedTime],
@@ -136,10 +137,9 @@ export const useTimePicker_unstable = (props: TimePickerProps, ref: React.Ref<HT
 
   const state: TimePickerState = {
     ...baseState,
-    dateToText,
     freeform,
     validateFreeFormTime: validateFreeFormTimeInProps ?? defaultValidateTime,
-    selectedTimeTextRef,
+    selectedTimeText,
   };
 
   useSelectTimeFromValue(state, selectTime);
@@ -177,17 +177,7 @@ const useStableDateAnchor = (providedDate: Date | undefined, startHour: Hour, en
  * - TimePicker loses focus, signifying a possible change.
  */
 const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProps['onTimeSelect']) => {
-  const {
-    activeOption,
-    dateToText,
-    freeform,
-    validateFreeFormTime,
-    options,
-    selectedTimeTextRef,
-    setActiveOption,
-    setValue,
-    value,
-  } = state;
+  const { activeOption, freeform, validateFreeFormTime, options, selectedTimeText, setActiveOption, value } = state;
 
   // Base Combobox has activeOption default to first option in dropdown even if it doesn't match input value, and Enter key will select it.
   // This effect ensures that the activeOption is cleared when the input doesn't match any option.
@@ -207,22 +197,17 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
 
       const { date: selectedTime, error } = validateFreeFormTime(value);
 
-      const selectedTimeText = selectedTime ? dateToText(selectedTime) : value;
-      if (selectedTimeText !== value) {
-        setValue(selectedTimeText);
-      }
-
       // Only triggers callback when the text in input has changed.
-      if (selectedTimeTextRef.current !== selectedTimeText) {
-        callback?.(e, { selectedTime, selectedTimeText, error });
+      if (selectedTimeText !== value) {
+        callback?.(e, { selectedTime, selectedTimeText: value, error });
       }
     },
-    [callback, dateToText, freeform, validateFreeFormTime, selectedTimeTextRef, setValue, value],
+    [callback, freeform, selectedTimeText, validateFreeFormTime, value],
   );
 
   const handleKeyDown: ComboboxProps['onKeyDown'] = React.useCallback(
     e => {
-      if (!activeOption && (e.key === 'Enter' || e.key === 'Tab')) {
+      if (!activeOption && e.key === Enter) {
         selectTimeFromValue(e);
       }
     },

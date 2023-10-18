@@ -33,6 +33,7 @@ export type TimePickerOption = {
 
 // @public
 export type TimePickerProps = Omit<ComboboxProps, 'children' | 'defaultSelectedOptions' | 'multiselect' | 'onOptionSelect' | 'selectedOptions'> & TimeFormatOptions & {
+    children?: React_2.ReactElement | React_2.ReactElement[] | ((props: TimePickerChildrenProps) => React_2.ReactElement[] | React_2.ReactElement | null) | null;
     startHour?: Hour;
     endHour?: Hour;
     increment?: number;
@@ -50,8 +51,7 @@ export type TimePickerSlots = ComboboxSlots;
 
 // @public
 export type TimePickerState = ComboboxState & Required<Pick<TimePickerProps, 'freeform' | 'validateFreeFormTime'>> & {
-    dateToText: (date: Date) => string;
-    selectedTimeTextRef: React_2.MutableRefObject<string | undefined>;
+    selectedTimeText: string | undefined;
 };
 
 // @public (undocumented)
