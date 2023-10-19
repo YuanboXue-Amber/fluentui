@@ -177,17 +177,17 @@ const useStableDateAnchor = (providedDate: Date | undefined, startHour: Hour, en
  * - TimePicker loses focus, signifying a possible change.
  */
 const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProps['onTimeSelect']) => {
-  const { activeOption, freeform, validateFreeFormTime, options, submittedText, setActiveOption, value } = state;
+  const { activeOption, freeform, validateFreeFormTime, submittedText, setActiveOption, value } = state;
 
   // Base Combobox has activeOption default to first option in dropdown even if it doesn't match input value, and Enter key will select it.
   // This effect ensures that the activeOption is cleared when the input doesn't match any option.
   // This behavior is specific to a freeform TimePicker where the input value is treated as a valid time even if it's not in the dropdown.
-  const isValueOptionPrefix = value ? options.some(({ text }) => text.indexOf(value) === 0) : false;
+  const prefixNotMatchActiveOption = value && (!activeOption || activeOption.text.indexOf(value) !== 0);
   React.useEffect(() => {
-    if (freeform && value && !isValueOptionPrefix) {
+    if (freeform && activeOption && prefixNotMatchActiveOption) {
       setActiveOption(undefined);
     }
-  }, [freeform, isValueOptionPrefix, setActiveOption, value]);
+  }, [activeOption, freeform, prefixNotMatchActiveOption, setActiveOption]);
 
   const selectTimeFromValue = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
@@ -229,13 +229,16 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
     state.expandIcon.tabIndex = -1; // allows it to be the relatedTarget of a blur event.
   }
 
-  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const isOutside = e.relatedTarget
-      ? [rootRef, listboxRef].every(({ current }) => !current?.contains(e.relatedTarget as HTMLElement))
-      : true;
-    if (isOutside) {
-      selectTimeFromValue(e);
-    }
-  };
+  const handleInputBlur = React.useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const isOutside = e.relatedTarget
+        ? [rootRef, listboxRef].every(({ current }) => !current?.contains(e.relatedTarget as HTMLElement))
+        : true;
+      if (isOutside) {
+        selectTimeFromValue(e);
+      }
+    },
+    [selectTimeFromValue],
+  );
   state.input.onBlur = mergeCallbacks(handleInputBlur, state.input.onBlur);
 };
