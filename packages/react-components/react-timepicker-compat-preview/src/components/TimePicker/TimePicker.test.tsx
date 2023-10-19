@@ -48,7 +48,7 @@ describe('TimePicker', () => {
 
   it('shows controlled time correctly', () => {
     const TestExample = () => {
-      const [selectedTime, setSelectedTime] = React.useState<Date | undefined>(dateAnchor);
+      const [selectedTime, setSelectedTime] = React.useState<Date | null>(dateAnchor);
       const onTimeSelect: TimePickerProps['onTimeSelect'] = (_e, data) => setSelectedTime(data.selectedTime);
       return (
         <TimePicker dateAnchor={dateAnchor} increment={60} selectedTime={selectedTime} onTimeSelect={onTimeSelect} />
