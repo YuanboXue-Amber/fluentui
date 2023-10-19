@@ -51,7 +51,7 @@ export type TimePickerSlots = ComboboxSlots;
 
 // @public
 export type TimePickerState = ComboboxState & Required<Pick<TimePickerProps, 'freeform' | 'validateFreeFormTime'>> & {
-    selectedTimeText: string | undefined;
+    submittedText: string | undefined;
 };
 
 // @public (undocumented)
