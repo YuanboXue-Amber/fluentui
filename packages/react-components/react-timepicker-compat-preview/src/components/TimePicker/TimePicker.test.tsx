@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isConformant } from '../../testing/isConformant';
 import { TimePicker } from './TimePicker';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TimePickerProps } from './TimePicker.types';
 
@@ -72,6 +72,8 @@ describe('TimePicker', () => {
     );
 
     const input = getByRole('combobox');
+
+    // Call onTimeSelect when select an option
     userEvent.click(input);
     userEvent.click(getAllByRole('option')[1]);
     expect(handleTimeSelect).toHaveBeenCalledTimes(1);
@@ -81,11 +83,12 @@ describe('TimePicker', () => {
     );
     handleTimeSelect.mockClear();
 
-    userEvent.tab();
+    // Do not call onTimeSelect on Enter when the value remains the same
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
     expect(handleTimeSelect).toHaveBeenCalledTimes(0);
 
-    userEvent.type(input, '111');
-    userEvent.tab();
+    // Call onTimeSelect on Enter when the value changes
+    userEvent.type(input, '111{enter}');
     expect(handleTimeSelect).toHaveBeenCalledTimes(1);
     expect(handleTimeSelect).toHaveBeenCalledWith(
       expect.anything(),
