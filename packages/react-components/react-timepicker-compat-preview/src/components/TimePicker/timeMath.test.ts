@@ -176,12 +176,23 @@ describe('Time Utilities', () => {
     });
 
     it('returns a date in the next day and an out-of-bounds error when the time is before the dateStartAnchor', () => {
-      const result = getDateFromTimeString('1:30 PM', dateStartAnchor, new Date('November 25, 2023 13:00:00'), {
+      const result = getDateFromTimeString('11:30 AM', dateStartAnchor, new Date('November 25, 2023 13:00:00'), {
+        hour12: true,
+        showSeconds: false,
+      });
+      expect(result.date?.getDate()).toBe(26);
+      expect(result.date?.getHours()).toBe(11);
+      expect(result.date?.getMinutes()).toBe(30);
+      expect(result.error).toBe('out-of-bounds');
+    });
+
+    it('returns an out-of-bounds error when the time is same as the dateEndAnchor', () => {
+      const result = getDateFromTimeString('1:00 PM', dateStartAnchor, new Date('November 25, 2023 13:00:00'), {
         hour12: true,
         showSeconds: false,
       });
       expect(result.date?.getHours()).toBe(13);
-      expect(result.date?.getMinutes()).toBe(30);
+      expect(result.date?.getMinutes()).toBe(0);
       expect(result.error).toBe('out-of-bounds');
     });
   });

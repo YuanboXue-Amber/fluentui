@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useId, makeStyles } from '@fluentui/react-components';
 import { TimePicker, TimePickerProps, formatDateToTimeString } from '@fluentui/react-timepicker-compat-preview';
+import story from './TimePickerControlled.md';
 
 const useStyles = makeStyles({
   root: {
@@ -79,4 +80,12 @@ export const Controlled = () => {
       <ControlledSelection />
     </div>
   );
+};
+
+Controlled.parameters = {
+  docs: {
+    description: {
+      story,
+    },
+  },
 };

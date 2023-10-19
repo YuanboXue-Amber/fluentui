@@ -199,7 +199,7 @@ export function getDateFromTimeString(
     adjustedDate.setDate(adjustedDate.getDate() + 1);
   }
 
-  if (adjustedDate > dateEndAnchor) {
+  if (adjustedDate >= dateEndAnchor) {
     return { date: adjustedDate, error: 'out-of-bounds' };
   }
 
