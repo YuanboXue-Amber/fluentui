@@ -13,7 +13,7 @@ const getErrorMessage = (error?: TimePickerErrorType): FieldProps['validationMes
     case 'invalid-input':
       return 'Invalid time format. Please use the 24-hour format HH:MM.';
     case 'out-of-bounds':
-      return 'Time out of the 8:00 to 19:59 range.';
+      return 'Time out of the 10:00 to 19:59 range.';
     case 'required-input':
       return 'Time is required.';
     default:
@@ -23,7 +23,7 @@ const getErrorMessage = (error?: TimePickerErrorType): FieldProps['validationMes
 
 export const FreeformWithErrorHandling = () => {
   const styles = useStyles();
-  const [anchor] = React.useState(new Date('November 25, 2023'));
+
   const [errorType, setErrorType] = React.useState<TimePickerErrorType>();
   const handleTimeSelect: TimePickerProps['onTimeSelect'] = (_ev, { error }) => {
     setErrorType(error);
@@ -34,12 +34,12 @@ export const FreeformWithErrorHandling = () => {
       className={styles.root}
       required
       label={
-        `Type a time outside of 8:00 to 19:59,` +
+        `Type a time outside of 10:00 to 19:59,` +
         ` type an invalid time, or leave the input empty and close the TimePicker.`
       }
       validationMessage={getErrorMessage(errorType)}
     >
-      <TimePicker freeform startHour={8} endHour={20} dateAnchor={anchor} onTimeSelect={handleTimeSelect} />
+      <TimePicker freeform startHour={10} endHour={20} onTimeSelect={handleTimeSelect} />
     </Field>
   );
 };

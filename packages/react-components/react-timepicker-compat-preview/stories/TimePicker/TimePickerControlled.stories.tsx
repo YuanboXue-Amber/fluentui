@@ -21,7 +21,6 @@ const DefaultSelection = () => {
   const timepickerId = useId('timepicker-default-selection');
   const styles = useStyles();
 
-  const [anchor] = React.useState(new Date('November 25, 2023'));
   const [defaultSelectedTime] = React.useState(new Date('November 25, 2023 12:30:00'));
   return (
     <div className={styles.field}>
@@ -30,7 +29,6 @@ const DefaultSelection = () => {
         id={timepickerId}
         startHour={8}
         endHour={20}
-        dateAnchor={anchor}
         defaultSelectedTime={defaultSelectedTime}
         defaultValue={formatDateToTimeString(defaultSelectedTime)}
       />
@@ -41,8 +39,6 @@ const DefaultSelection = () => {
 const ControlledSelection = () => {
   const timepickerId = useId('timepicker-controlled-selection');
   const styles = useStyles();
-
-  const [anchor] = React.useState(new Date('November 25, 2023'));
 
   const [selectedTime, setSelectedTime] = React.useState<Date | null>(new Date('November 25, 2023 12:30:00'));
   const [value, setValue] = React.useState<string>(selectedTime ? formatDateToTimeString(selectedTime) : '');
@@ -62,7 +58,6 @@ const ControlledSelection = () => {
         id={timepickerId}
         startHour={8}
         endHour={20}
-        dateAnchor={anchor}
         selectedTime={selectedTime}
         onTimeSelect={onTimeSelect}
         value={value}

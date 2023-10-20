@@ -15,11 +15,10 @@ const useStyles = makeStyles({
 export const CustomTimeOptions = () => {
   const id = useId('timepicker-custom-time-options-');
   const styles = useStyles();
-  const [anchor] = React.useState(new Date('November 15, 2020'));
   return (
     <div className={styles.root}>
       <label id={id}>Coffee time</label>
-      <TimePicker aria-labelledby={id} startHour={9} endHour={15} dateAnchor={anchor} hour12>
+      <TimePicker aria-labelledby={id} startHour={9} endHour={15} hour12>
         {({ options }) => {
           const morningOptions = options.filter(option => option.text.endsWith('am'));
           const afternoonOptions = options.filter(option => option.text.endsWith('pm'));

@@ -155,7 +155,7 @@ export type TimePickerProps = Omit<
     onTimeSelect?: (event: TimeSelectionEvents, data: TimeSelectionData) => void;
 
     /**
-     * Custom the date strings displayed (in dropdown options and input).
+     * Custom the date strings displayed in dropdown options.
      */
     formatDateToTimeString?: (date: Date) => string;
 
@@ -167,7 +167,7 @@ export type TimePickerProps = Omit<
     /**
      * Custom validation for the time selected from dropdown.
      */
-    validateOption?: (option: TimePickerOption) => TimePickerErrorType;
+    validateOption?: (option: TimePickerOption) => TimePickerErrorType | undefined;
   };
 
 /**
