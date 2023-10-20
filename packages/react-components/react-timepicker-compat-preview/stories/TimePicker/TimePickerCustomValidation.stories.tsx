@@ -3,7 +3,7 @@ import { Field, FieldProps, makeStyles } from '@fluentui/react-components';
 import { TimePicker, TimePickerErrorType, TimePickerProps } from '@fluentui/react-timepicker-compat-preview';
 
 const useStyles = makeStyles({
-  root: {
+  control: {
     maxWidth: '300px',
   },
 });
@@ -59,7 +59,6 @@ export const CustomValidation = () => {
 
   return (
     <Field
-      className={styles.root}
       required
       label={
         `Select a time outside of 10:00 to 19:59,` +
@@ -68,6 +67,7 @@ export const CustomValidation = () => {
       validationMessage={getErrorMessage(errorType)}
     >
       <TimePicker
+        className={styles.control}
         freeform
         dateAnchor={anchor}
         onTimeSelect={handleTimeSelect}
