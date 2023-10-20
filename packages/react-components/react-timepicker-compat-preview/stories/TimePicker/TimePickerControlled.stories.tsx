@@ -1,45 +1,32 @@
 import * as React from 'react';
-import { useId, makeStyles } from '@fluentui/react-components';
+import { Field, makeStyles } from '@fluentui/react-components';
 import { TimePicker, TimePickerProps, formatDateToTimeString } from '@fluentui/react-timepicker-compat-preview';
 import story from './TimePickerControlled.md';
 
 const useStyles = makeStyles({
   root: {
-    display: 'grid',
-    justifyItems: 'start',
+    display: 'flex',
+    flexDirection: 'column',
     rowGap: '20px',
-    maxWidth: '400px',
-  },
-  field: {
-    display: 'grid',
-    justifyItems: 'start',
-    rowGap: '2px',
+    maxWidth: '300px',
   },
 });
 
 const DefaultSelection = () => {
-  const timepickerId = useId('timepicker-default-selection');
-  const styles = useStyles();
-
   const [defaultSelectedTime] = React.useState(new Date('November 25, 2023 12:30:00'));
   return (
-    <div className={styles.field}>
-      <label htmlFor={timepickerId}>Select a time (default Selection)</label>
+    <Field label="Select a time (default Selection)">
       <TimePicker
-        id={timepickerId}
         startHour={8}
         endHour={20}
         defaultSelectedTime={defaultSelectedTime}
         defaultValue={formatDateToTimeString(defaultSelectedTime)}
       />
-    </div>
+    </Field>
   );
 };
 
 const ControlledSelection = () => {
-  const timepickerId = useId('timepicker-controlled-selection');
-  const styles = useStyles();
-
   const [selectedTime, setSelectedTime] = React.useState<Date | null>(new Date('November 25, 2023 12:30:00'));
   const [value, setValue] = React.useState<string>(selectedTime ? formatDateToTimeString(selectedTime) : '');
 
@@ -52,10 +39,8 @@ const ControlledSelection = () => {
   };
 
   return (
-    <div className={styles.field}>
-      <label htmlFor={timepickerId}>Select a time (controlled Selection)</label>
+    <Field label="Select a time (controlled Selection)">
       <TimePicker
-        id={timepickerId}
         startHour={8}
         endHour={20}
         selectedTime={selectedTime}
@@ -63,7 +48,7 @@ const ControlledSelection = () => {
         value={value}
         onInput={onInput}
       />
-    </div>
+    </Field>
   );
 };
 

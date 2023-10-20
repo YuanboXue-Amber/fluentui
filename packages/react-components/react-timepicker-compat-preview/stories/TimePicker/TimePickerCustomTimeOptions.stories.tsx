@@ -1,37 +1,32 @@
 import * as React from 'react';
-import { Option, OptionGroup, useId, makeStyles } from '@fluentui/react-components';
+import { Option, OptionGroup, Field, makeStyles } from '@fluentui/react-components';
 import { TimePicker } from '@fluentui/react-timepicker-compat-preview';
 
 const useStyles = makeStyles({
   root: {
-    display: 'grid',
-    justifyItems: 'start',
-    rowGap: '2px',
-    maxWidth: '400px',
+    maxWidth: '300px',
   },
-  label: { fontStyle: 'italic' },
+  groupLabel: { fontStyle: 'italic' },
 });
 
 export const CustomTimeOptions = () => {
-  const id = useId('timepicker-custom-time-options-');
   const styles = useStyles();
   return (
-    <div className={styles.root}>
-      <label id={id}>Coffee time</label>
-      <TimePicker aria-labelledby={id} startHour={9} endHour={15} hour12>
+    <Field label="Coffee time" className={styles.root}>
+      <TimePicker startHour={9} endHour={15} hour12>
         {({ options }) => {
           const morningOptions = options.filter(option => option.text.endsWith('am'));
           const afternoonOptions = options.filter(option => option.text.endsWith('pm'));
           return (
             <>
-              <OptionGroup label={{ children: 'morning', className: styles.label }}>
+              <OptionGroup label={{ children: 'morning', className: styles.groupLabel }}>
                 {morningOptions.map(date => (
                   <Option key={date.key} value={date.key} disabled={date.text === '11:00 am'}>
                     {date.text}
                   </Option>
                 ))}
               </OptionGroup>
-              <OptionGroup label={{ children: 'afternoon', className: styles.label }}>
+              <OptionGroup label={{ children: 'afternoon', className: styles.groupLabel }}>
                 {afternoonOptions.map(date => (
                   <Option key={date.key} value={date.key}>
                     {date.text}
@@ -42,7 +37,7 @@ export const CustomTimeOptions = () => {
           );
         }}
       </TimePicker>
-    </div>
+    </Field>
   );
 };
 

@@ -4,7 +4,7 @@ import { TimePicker, TimePickerErrorType, TimePickerProps } from '@fluentui/reac
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: '400px',
+    maxWidth: '300px',
   },
 });
 
