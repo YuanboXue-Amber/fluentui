@@ -157,7 +157,7 @@ export function getDateFromTimeString(
   timeFormatOptions: TimeFormatOptions,
 ): TimeStringValidationResult {
   if (!time) {
-    return { date: null, error: 'invalid-input' };
+    return { date: null, error: 'required-input' };
   }
 
   const { hour12, showSeconds } = timeFormatOptions;

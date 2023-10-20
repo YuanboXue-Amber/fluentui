@@ -51,7 +51,7 @@ export type TimePickerOption = {
 /**
  * Error types returned by the `onValidationResult` callback.
  */
-export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds';
+export type TimePickerErrorType = 'invalid-input' | 'out-of-bounds' | 'required-input';
 
 export type TimeStringValidationResult = {
   date: Date | null;

@@ -166,7 +166,7 @@ describe('Time Utilities', () => {
     it('returns an error when no time string is provided', () => {
       const result = getDateFromTimeString(undefined, dateStartAnchor, dateEndAnchor, {});
       expect(result.date).toBeNull();
-      expect(result.error).toBe('invalid-input');
+      expect(result.error).toBe('required-input');
     });
 
     it('returns an error for an invalid time string', () => {
