@@ -9,6 +9,7 @@ export { CustomTimeString } from './TimePickerCustomTimeString.stories';
 export { CustomTimeOptions } from './TimePickerCustomTimeOptions.stories';
 export { FreeformWithErrorHandling } from './TimePickerFreeform.stories';
 export { CustomValidation } from './TimePickerCustomValidation.stories';
+export { WithDatePicker } from './TimePickerWithDatePicker.stories';
 
 export default {
   title: 'Preview Components/TimePicker',
