@@ -13,7 +13,7 @@ export const CustomTimeOptions = () => {
   const styles = useStyles();
   return (
     <Field label="Coffee time" className={styles.root}>
-      <TimePicker startHour={9} endHour={15} hour12>
+      <TimePicker startHour={9} endHour={15} hourCycle="h11">
         {({ options }) => {
           const morningOptions = options.filter(option => option.text.endsWith('am'));
           const afternoonOptions = options.filter(option => option.text.endsWith('pm'));

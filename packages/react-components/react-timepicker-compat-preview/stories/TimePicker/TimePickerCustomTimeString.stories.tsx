@@ -9,7 +9,11 @@ const useStyles = makeStyles({
 });
 
 const formatDateToTimeString = (date: Date) => {
-  const localeTimeString = date.toLocaleTimeString();
+  const localeTimeString = date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+    hourCycle: 'h12',
+  });
   if (date.getHours() < 12) {
     return `Morning: ${localeTimeString}`;
   }
@@ -22,7 +26,7 @@ export const CustomTimeString = () => {
   const [anchor] = React.useState(new Date(2023, 1, 1));
   return (
     <Field label="Coffee time" className={styles.root}>
-      <TimePicker startHour={9} endHour={15} dateAnchor={anchor} formatDateToTimeString={formatDateToTimeString} />
+      <TimePicker dateAnchor={anchor} formatDateToTimeString={formatDateToTimeString} />
     </Field>
   );
 };

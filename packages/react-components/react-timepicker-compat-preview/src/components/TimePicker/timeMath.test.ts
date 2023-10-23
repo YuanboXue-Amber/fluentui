@@ -78,7 +78,7 @@ describe('Time Utilities', () => {
     });
 
     it('should format time in 12-hour format with seconds', () => {
-      expect(formatDateToTimeString(testDate, { showSeconds: true, hour12: true })).toBe('11:45:12 PM');
+      expect(formatDateToTimeString(testDate, { showSeconds: true, hourCycle: 'h11' })).toBe('11:45:12 PM');
     });
 
     it('should format midnight correctly in 24-hour format', () => {
@@ -94,7 +94,7 @@ describe('Time Utilities', () => {
         return toLocaleTimeString.call(this, 'ja-JP', options);
       });
 
-      expect(formatDateToTimeString(testDate, { showSeconds: true, hour12: true })).toBe('午後11:45:12');
+      expect(formatDateToTimeString(testDate, { showSeconds: true, hourCycle: 'h11' })).toBe('午後11:45:12');
 
       toLocaleTimeStringMock.mockClear();
     });
@@ -155,7 +155,7 @@ describe('Time Utilities', () => {
 
     it('returns a valid date when given a valid time string', () => {
       const result = getDateFromTimeString('2:30 PM', dateStartAnchor, dateEndAnchor, {
-        hour12: true,
+        hourCycle: 'h11',
         showSeconds: false,
       });
       expect(result.date?.getHours()).toBe(14);
@@ -177,7 +177,7 @@ describe('Time Utilities', () => {
 
     it('returns a date in the next day and an out-of-bounds error when the time is before the dateStartAnchor', () => {
       const result = getDateFromTimeString('11:30 AM', dateStartAnchor, new Date('November 25, 2023 13:00:00'), {
-        hour12: true,
+        hourCycle: 'h11',
         showSeconds: false,
       });
       expect(result.date?.getDate()).toBe(26);
@@ -188,7 +188,7 @@ describe('Time Utilities', () => {
 
     it('returns an out-of-bounds error when the time is same as the dateEndAnchor', () => {
       const result = getDateFromTimeString('1:00 PM', dateStartAnchor, new Date('November 25, 2023 13:00:00'), {
-        hour12: true,
+        hourCycle: 'h11',
         showSeconds: false,
       });
       expect(result.date?.getHours()).toBe(13);

@@ -19,7 +19,7 @@ TimePicker specific props:
 | `showSeconds`         | `showSeconds`                                                 |
 | `strings`             | use `Field` to display error. See 'Custom Validation' example |
 | `timeRange`           | `startHour` and `endHour`                                     |
-| `useHour12`           | `hour12`                                                      |
+| `useHour12`           | `hourCycle='h11'` or `hourCycle='h12'`                        |
 | `value`               | `selectedTime`                                                |
 
 V8 TimePicker is built on v8 Combobox, and v9 TimePicker compat on v9 Combobox. Please see Combobox migration guide for the rest of the props.
