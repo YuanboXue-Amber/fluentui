@@ -9,7 +9,7 @@ const useStyles = makeStyles({
   groupLabel: { fontStyle: 'italic' },
 });
 
-export const CustomTimeOptions = () => {
+export const CustomOptions = () => {
   const styles = useStyles();
   return (
     <Field label="Coffee time" className={styles.root}>
@@ -41,7 +41,7 @@ export const CustomTimeOptions = () => {
   );
 };
 
-CustomTimeOptions.parameters = {
+CustomOptions.parameters = {
   docs: {
     description: {
       story: 'Time options in dropdown can be customized by passing a function as the children of TimePicker.',

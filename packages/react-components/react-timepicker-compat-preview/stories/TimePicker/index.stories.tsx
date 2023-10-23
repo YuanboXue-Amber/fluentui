@@ -6,7 +6,7 @@ import bestPracticesMd from './TimePickerBestPractices.md';
 export { Default } from './TimePickerDefault.stories';
 export { Controlled } from './TimePickerControlled.stories';
 export { CustomTimeString } from './TimePickerCustomTimeString.stories';
-export { CustomTimeOptions } from './TimePickerCustomTimeOptions.stories';
+export { CustomOptions } from './TimePickerCustomOptions.stories';
 export { FreeformWithErrorHandling } from './TimePickerFreeform.stories';
 export { CustomValidation } from './TimePickerCustomValidation.stories';
 export { WithDatePicker } from './TimePickerWithDatePicker.stories';
