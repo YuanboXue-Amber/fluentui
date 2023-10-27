@@ -188,14 +188,16 @@ const useSelectTimeFromValue = (state: TimePickerState, callback: TimePickerProp
   // Base Combobox has activeOption default to first option in dropdown even if it doesn't match input value, and Enter key will select it.
   // This effect ensures that the activeOption is cleared when the input doesn't match any option.
   // This behavior is specific to a freeform TimePicker where the input value is treated as a valid time even if it's not in the dropdown.
-  const prefixMatchActiveOption = value && activeOption?.text && activeOption.text.indexOf(value) === 0;
   React.useEffect(() => {
-    if (!freeform || prefixMatchActiveOption) {
-      return;
+    if (freeform && value) {
+      setActiveOption(prevActiveOption => {
+        if (prevActiveOption?.text?.indexOf(value) === 0) {
+          return prevActiveOption;
+        }
+        return undefined;
+      });
     }
-
-    setActiveOption(undefined);
-  }, [freeform, prefixMatchActiveOption, setActiveOption]);
+  }, [freeform, setActiveOption, value]);
 
   const selectTimeFromValue = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
