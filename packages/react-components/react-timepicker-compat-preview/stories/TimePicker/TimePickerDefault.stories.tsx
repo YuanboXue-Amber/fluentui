@@ -4,7 +4,7 @@ import { TimePicker, TimePickerProps } from '@fluentui/react-timepicker-compat-p
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: '300px',
+    maxWidth: '240px',
   },
 });
 
