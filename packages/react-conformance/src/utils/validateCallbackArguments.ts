@@ -1,7 +1,11 @@
 import { getCallbackArguments } from './getCallbackArguments';
 import type { ArgumentValue } from './getCallbackArguments';
 
-function validateEventArgument(value: ArgumentValue | ArgumentValue[]): void {
+export type ValidateEventArgumentOptions = {
+  forceGenericEventTypes: boolean;
+};
+
+function validateEventArgument(value: ArgumentValue | ArgumentValue[], options: ValidateEventArgumentOptions): void {
   const normalizedValue = Array.isArray(value) ? value : [value];
 
   normalizedValue.forEach(valueInUnion => {
@@ -11,20 +15,37 @@ function validateEventArgument(value: ArgumentValue | ArgumentValue[]): void {
 
     if (typeof valueInUnion === 'string') {
       if (valueInUnion === 'Event' || valueInUnion === 'React.SyntheticEvent') {
-        throw new Error(
-          [
-            'A first (event) argument cannot use generic React.SyntheticEvent or Event types.',
-            'Please use more specific types like React.MouseEvent/MouseEvent',
-          ].join(' '),
-        );
+        if (options.forceGenericEventTypes) {
+          return;
+        } else {
+          throw new Error(
+            [
+              'A first (event) argument cannot use generic React.SyntheticEvent or Event types.',
+              'Please use more specific types like React.MouseEvent/MouseEvent',
+            ].join(' '),
+          );
+        }
       }
 
       if (valueInUnion.endsWith('Event')) {
-        return;
+        if (options.forceGenericEventTypes) {
+          throw new Error(
+            [
+              'A first (event) argument must use generic `React.SyntheticEvent | Event` type.',
+              'Please use `EventHandler` to type the callback',
+            ].join(' '),
+          );
+        } else {
+          return;
+        }
       }
     }
 
-    throw new Error(`A first (event) argument may only have type "undefined", React.*Event or *Event`);
+    throw new Error(
+      options.forceGenericEventTypes
+        ? 'A first (event) argument may only have type `React.SyntheticEvent | Event`. Please use `EventHandler` to type the callback'
+        : `A first (event) argument may only have type "undefined", React.*Event or *Event`,
+    );
   });
 }
 
@@ -38,13 +59,16 @@ function validateDataArgument(value: ArgumentValue | ArgumentValue[]): void {
   }
 }
 
-export function validateCallbackArguments(callbackArguments: ReturnType<typeof getCallbackArguments>): void {
+export function validateCallbackArguments(
+  callbackArguments: ReturnType<typeof getCallbackArguments>,
+  validateEventArgumentOptions: ValidateEventArgumentOptions,
+): void {
   const argumentNames = Object.keys(callbackArguments);
 
   if (argumentNames.length !== 2) {
     throw new Error(`A callback should have two arguments, it has ${argumentNames.length}`);
   }
 
-  validateEventArgument(callbackArguments[0][1]);
+  validateEventArgument(callbackArguments[0][1], validateEventArgumentOptions);
   validateDataArgument(callbackArguments[1][1]);
 }

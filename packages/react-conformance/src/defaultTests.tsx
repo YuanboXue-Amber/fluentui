@@ -3,10 +3,15 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import { render } from '@testing-library/react';
 
-import { IsConformantOptions, DefaultTestObject } from './types';
+import { IsConformantOptions, DefaultTestObject, ConformanceTest } from './types';
 import { defaultErrorMessages } from './defaultErrorMessages';
 import { ComponentDoc } from 'react-docgen-typescript';
-import { getPackagePath, getCallbackArguments, validateCallbackArguments } from './utils/index';
+import {
+  getPackagePath,
+  getCallbackArguments,
+  validateCallbackArguments,
+  ValidateEventArgumentOptions,
+} from './utils/index';
 import { act } from 'react-dom/test-utils';
 
 /**
@@ -447,56 +452,18 @@ export const defaultTests: DefaultTestObject = {
   /** Ensures that components have consistent callback arguments (ev, data) */
   'consistent-callback-args': (testInfo, componentInfo, tsProgram) => {
     it('has consistent custom callback arguments (consistent-callback-args)', () => {
-      const { testOptions = {} } = testInfo;
+      consistentCallbackTest('consistent-callback-args', {
+        forceGenericEventTypes: false,
+      })(testInfo, componentInfo, tsProgram);
+    });
+  },
 
-      const propNames = Object.keys(componentInfo.props);
-      const ignoreProps = testOptions['consistent-callback-args']?.ignoreProps || [];
-
-      const invalidProps = propNames.reduce<Record<string, Error>>((errors, propName) => {
-        if (!ignoreProps.includes(propName) && CALLBACK_REGEX.test(propName)) {
-          const propInfo = componentInfo.props[propName];
-
-          if (!propInfo.declarations) {
-            throw new Error(
-              [
-                `Definition for "${propName}" does not have ".declarations" produced by "react-docgen-typescript".`,
-                'Please report a bug in Fluent UI repo if this happens. Include in a bug report details about file',
-                'where it happens and used interfaces.',
-              ].join(' '),
-            );
-          }
-
-          if (propInfo.declarations.length !== 1) {
-            throw new Error(
-              [
-                `Definition for "${propName}" has multiple elements in ".declarations" produced by `,
-                `"react-docgen-typescript".`,
-                'Please report a bug in Fluent UI repo if this happens. Include in a bug report details about file',
-                'where it happens and used interfaces.',
-              ].join(' '),
-            );
-          }
-
-          const rootFileName = propInfo.declarations[0].fileName;
-          const propsTypeName = propInfo.declarations[0].name;
-
-          try {
-            validateCallbackArguments(getCallbackArguments(tsProgram, rootFileName, propsTypeName, propName));
-          } catch (err: OptOutStrictCatchTypes) {
-            console.log('err', err);
-
-            return { ...errors, [propName]: err };
-          }
-        }
-
-        return errors;
-      }, {});
-
-      try {
-        expect(invalidProps).toEqual({});
-      } catch (e: OptOutStrictCatchTypes) {
-        throw new Error(defaultErrorMessages['consistent-callback-args'](testInfo, invalidProps));
-      }
+  /** Ensures that components have consistent callback arguments (ev, data) following rfcs/react-components/convergence/event-handlers-event-type.md */
+  'consistent-callback-args-2': (testInfo, componentInfo, tsProgram) => {
+    it('callback uses generic type `React.SyntheticEvent | Event` for the first event argument (consistent-callback-args-2)', () => {
+      consistentCallbackTest('consistent-callback-args', {
+        forceGenericEventTypes: true,
+      })(testInfo, componentInfo, tsProgram);
     });
   },
 
@@ -578,4 +545,65 @@ function classListToStrings(classList: DOMTokenList): string[] {
     result.push(classList[i]);
   }
   return result;
+}
+
+function consistentCallbackTest(
+  testName: 'consistent-callback-args' | 'consistent-callback-args-2',
+  validateEventArgumentOptions: ValidateEventArgumentOptions,
+): ConformanceTest {
+  return (testInfo, componentInfo, tsProgram) => {
+    const { testOptions = {} } = testInfo;
+
+    const propNames = Object.keys(componentInfo.props);
+    const ignoreProps = testOptions[testName]?.ignoreProps || [];
+
+    const invalidProps = propNames.reduce<Record<string, Error>>((errors, propName) => {
+      if (!ignoreProps.includes(propName) && CALLBACK_REGEX.test(propName)) {
+        const propInfo = componentInfo.props[propName];
+
+        if (!propInfo.declarations) {
+          throw new Error(
+            [
+              `Definition for "${propName}" does not have ".declarations" produced by "react-docgen-typescript".`,
+              'Please report a bug in Fluent UI repo if this happens. Include in a bug report details about file',
+              'where it happens and used interfaces.',
+            ].join(' '),
+          );
+        }
+
+        if (propInfo.declarations.length !== 1) {
+          throw new Error(
+            [
+              `Definition for "${propName}" has multiple elements in ".declarations" produced by `,
+              `"react-docgen-typescript".`,
+              'Please report a bug in Fluent UI repo if this happens. Include in a bug report details about file',
+              'where it happens and used interfaces.',
+            ].join(' '),
+          );
+        }
+
+        const rootFileName = propInfo.declarations[0].fileName;
+        const propsTypeName = propInfo.declarations[0].name;
+
+        try {
+          validateCallbackArguments(
+            getCallbackArguments(tsProgram, rootFileName, propsTypeName, propName),
+            validateEventArgumentOptions,
+          );
+        } catch (err: OptOutStrictCatchTypes) {
+          console.log('err', err);
+
+          return { ...errors, [propName]: err };
+        }
+      }
+
+      return errors;
+    }, {});
+
+    try {
+      expect(invalidProps).toEqual({});
+    } catch (e: OptOutStrictCatchTypes) {
+      throw new Error(defaultErrorMessages[testName](testInfo, invalidProps));
+    }
+  };
 }
