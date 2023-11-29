@@ -22,7 +22,7 @@ describe('validateCallbackArguments', () => {
     }).not.toThrow();
   });
 
-  describe('event param', () => {
+  describe('event param with forceGenericEventTypes false', () => {
     it('throws on "null"', () => {
       expect(() => {
         validateCallbackArguments([
@@ -72,6 +72,77 @@ describe('validateCallbackArguments', () => {
         `"A first (event) argument cannot use generic React.SyntheticEvent or Event types. Please use more specific types like React.MouseEvent/MouseEvent"`,
       );
       /* eslint-enable @fluentui/max-len */
+    });
+  });
+
+  describe('event param with forceGenericEventTypes true', () => {
+    it('throws on "null"', () => {
+      expect(() => {
+        validateCallbackArguments(
+          [
+            ['e', null],
+            ['data', { value: 'string' }],
+          ],
+
+          { forceGenericEventTypes: true },
+        );
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"A first (event) argument may only have type \`React.SyntheticEvent | Event\`. Please use \`EventHandler\` to type the callback"`,
+      );
+    });
+
+    it('throws on invalid types', () => {
+      expect(() => {
+        validateCallbackArguments(
+          [
+            ['e', 'Element'],
+            ['data', { value: 'string' }],
+          ],
+
+          { forceGenericEventTypes: true },
+        );
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"A first (event) argument may only have type \`React.SyntheticEvent | Event\`. Please use \`EventHandler\` to type the callback"`,
+      );
+      expect(() => {
+        validateCallbackArguments(
+          [
+            ['e', 'string'],
+            ['data', { value: 'string' }],
+          ],
+
+          { forceGenericEventTypes: true },
+        );
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"A first (event) argument may only have type \`React.SyntheticEvent | Event\`. Please use \`EventHandler\` to type the callback"`,
+      );
+    });
+
+    it('throws on non-generic params', () => {
+      expect(() => {
+        validateCallbackArguments(
+          [
+            ['e', 'React.ChangeEvent'],
+            ['data', { value: 'string' }],
+          ],
+
+          { forceGenericEventTypes: true },
+        );
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"A first (event) argument must use generic \`React.SyntheticEvent | Event\` type. Please use \`EventHandler\` to type the callback"`,
+      );
+      expect(() => {
+        validateCallbackArguments(
+          [
+            ['e', 'React.MouseEvent | React.KeyboardEvent'],
+            ['data', { value: 'string' }],
+          ],
+
+          { forceGenericEventTypes: true },
+        );
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"A first (event) argument must use generic \`React.SyntheticEvent | Event\` type. Please use \`EventHandler\` to type the callback"`,
+      );
     });
   });
 

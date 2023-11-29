@@ -61,7 +61,7 @@ function validateDataArgument(value: ArgumentValue | ArgumentValue[]): void {
 
 export function validateCallbackArguments(
   callbackArguments: ReturnType<typeof getCallbackArguments>,
-  validateEventArgumentOptions: ValidateEventArgumentOptions,
+  validateEventArgumentOptions: ValidateEventArgumentOptions = { forceGenericEventTypes: false },
 ): void {
   const argumentNames = Object.keys(callbackArguments);
 
