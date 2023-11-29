@@ -461,7 +461,7 @@ export const defaultTests: DefaultTestObject = {
   /** Ensures that components have consistent callback arguments (ev, data) following rfcs/react-components/convergence/event-handlers-event-type.md */
   'consistent-callback-args-2': (testInfo, componentInfo, tsProgram) => {
     it('callback uses generic type `React.SyntheticEvent | Event` for the first event argument (consistent-callback-args-2)', () => {
-      consistentCallbackTest('consistent-callback-args', {
+      consistentCallbackTest('consistent-callback-args-2', {
         forceGenericEventTypes: true,
       })(testInfo, componentInfo, tsProgram);
     });
