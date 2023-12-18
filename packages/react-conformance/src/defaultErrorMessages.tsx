@@ -485,7 +485,7 @@ export const defaultErrorMessages = {
           displayName + `'s`,
         )} callbacks have two params (an event and data object) and types of arguments are correct.`,
         `If a callback is intended to have a different signature, add the prop to isConformant ${resolveInfo(
-          "testOptions['consistent-callback-args'].ignoreProps",
+          "testOptions['consistent-callback-args-2'].ignoreProps",
         )}.`,
       ],
     });
