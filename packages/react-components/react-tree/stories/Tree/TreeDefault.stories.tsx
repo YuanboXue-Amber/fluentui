@@ -155,6 +155,13 @@ export function useHeadlessFlatVirtualizedTree_unstable<Props extends HeadlessFl
   };
 }
 
+/**
+ * Why useHeadlessFlatVirtualizedTree instead of component:
+ * Virtualization needs a ref to the scroll container to calculate the visible items. If we were to use a component, it is not a good design to have either Tree or container as root ref. Either way, one of them can only be customized via object props.
+ *   - If we were to use Tree as root ref, container as a slot <Tree container={{style: {overflow: 'auto}}}, it is strange because container is parent of Tree..
+ *   - If we were to use container as root ref, Tree as a slot, we need to have either Tree accepting object prop, or set Tree as primary slot, which will accepts the component props instead of container. It is confusing.
+ * The best way is simply let user define the container element. All we need is a ref to it.
+ */
 const estimateSize = () => 35;
 export const Default = () => {
   const parentRef = React.useRef<HTMLDivElement>(null);
