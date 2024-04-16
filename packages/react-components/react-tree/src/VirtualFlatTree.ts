@@ -37,11 +37,11 @@ export const FlatVirtualizedTreeItem: ForwardRefComponent<FlatVirtualizedTreeIte
     // TODO makeStyle the static styles
     state.root.style = {
       position: 'absolute',
-      top: 0,
+      top: `${virtualItemProps.start}px`,
       left: 0,
       width: '100%',
       height: `${virtualItemProps.size}px`,
-      transform: `translateY(${virtualItemProps.start}px)`,
+      // transform: `translateY(${virtualItemProps.start}px)`,
       ...state.root.style,
     };
 
