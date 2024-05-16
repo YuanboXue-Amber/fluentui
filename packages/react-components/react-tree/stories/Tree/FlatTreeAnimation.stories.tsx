@@ -246,7 +246,7 @@ const Controls = ({
   );
 };
 
-export const AnimationExample = () => {
+export const FlatTreeAnimation = () => {
   const styles = useStyles();
 
   const [openItems, setOpenItems] = React.useState<Set<TreeItemValue>>(new Set());
