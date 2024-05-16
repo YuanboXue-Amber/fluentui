@@ -16,6 +16,8 @@ import {
   TreeItemValue,
   Slider,
   Label,
+  TreeItemPersonaLayout,
+  Avatar,
 } from '@fluentui/react-components';
 import { MotionImperativeRef, createPresenceComponent } from '@fluentui/react-motions-preview';
 import { useId, usePrevious } from '@fluentui/react-utilities';
@@ -26,7 +28,11 @@ const allItemsNested: FlattenTreeItem<TreeItemProps>[] = [
     children: <TreeItemLayout>folder 0</TreeItemLayout>,
     subtree: Array.from({ length: 7 }, (_, i) => ({
       value: `folder 0 child ${i}`,
-      children: <TreeItemLayout>folder 0 child {i}</TreeItemLayout>,
+      children: (
+        <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
+          folder 0 child {i}
+        </TreeItemPersonaLayout>
+      ),
     })),
   },
   {
@@ -39,9 +45,9 @@ const allItemsNested: FlattenTreeItem<TreeItemProps>[] = [
         subtree: Array.from({ length: 2 }, (_, j) => ({
           value: `folder 1 sub-folder ${i} child ${j}`,
           children: (
-            <TreeItemLayout>
+            <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
               folder 1 sub-folder {i} child {j}
-            </TreeItemLayout>
+            </TreeItemPersonaLayout>
           ),
         })),
       })),
@@ -52,7 +58,11 @@ const allItemsNested: FlattenTreeItem<TreeItemProps>[] = [
     children: <TreeItemLayout>folder 2</TreeItemLayout>,
     subtree: Array.from({ length: 3 }, (_, i) => ({
       value: `folder 2 child ${i}`,
-      children: <TreeItemLayout>folder 2 child {i}</TreeItemLayout>,
+      children: (
+        <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
+          folder 2 child {i}
+        </TreeItemPersonaLayout>
+      ),
     })),
   },
 ];
@@ -101,18 +111,16 @@ const Fade = createPresenceComponent({
   },
 });
 
-const ITEM_HEIGHT = 32;
-
 const AnimatedFlatTreeItem: ForwardRefComponent<
   Partial<TreeItemProps> & {
-    index: number;
+    top: number;
     playbackRate: number;
   }
 > = React.forwardRef((props, ref) => {
-  const { index, playbackRate, ...rest } = props;
-  const visible = index !== -1;
+  const { top, playbackRate, ...rest } = props;
+  const visible = top !== -1;
 
-  const prevIndex = usePrevious(index);
+  const prevTop = usePrevious(top);
   const prevTreeItemProps = usePrevious(rest);
 
   // Heads up!
@@ -131,13 +139,13 @@ const AnimatedFlatTreeItem: ForwardRefComponent<
           ...props.style,
           position: 'absolute',
           width: '100%',
-          top: `${index * ITEM_HEIGHT}px`,
+          top: `${top}px`,
           transition: `top ${DURATION / (playbackRate / 100)}ms`,
           // before unmount, keep it as is and fade out
           ...(!visible &&
-            prevIndex !== null &&
-            prevIndex >= 0 && {
-              top: `${prevIndex * ITEM_HEIGHT}px`,
+            prevTop !== null &&
+            prevTop >= 0 && {
+              top: `${prevTop}px`,
             }),
         }}
       />
@@ -253,6 +261,15 @@ export const AnimationExample = () => {
 
   const [playbackRate, setPlaybackRate] = React.useState<number>(10);
 
+  const getItemHeight = (index: number): number => {
+    const item = visibleItems[index];
+    return item?.itemType === 'branch' ? 32 : 56;
+  };
+  const getItemTop = (index: number): number => {
+    // height of all items before this item
+    return visibleItems.slice(0, index).reduce((acc, item) => acc + getItemHeight(item.index), 0);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.scrollContainer}>
@@ -263,7 +280,7 @@ export const AnimationExample = () => {
             return (
               <AnimatedFlatTreeItem
                 {...treeItemProps}
-                index={visibleItem ? visibleItem.index : -1}
+                top={visibleItem ? getItemTop(visibleItem.index) : -1}
                 playbackRate={playbackRate}
               />
             );
