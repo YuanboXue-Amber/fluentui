@@ -38,6 +38,7 @@ export { InfiniteScrolling } from './TreeInfiniteScrolling.stories';
 export { Virtualization } from './Virtualization.stories';
 export { DragAndDrop } from './TreeDragAndDrop.stories';
 export { FlatTreeAnimation } from './FlatTreeAnimation.stories';
+export { FlatVirtualizedTreeAnimation } from './FlatVirtualizedTreeAnimation.stories';
 
 export default {
   title: 'Components/Tree',
