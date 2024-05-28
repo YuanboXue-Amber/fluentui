@@ -21,34 +21,45 @@ import {
   HeadlessFlatTree,
   HeadlessFlatTreeItem,
   HeadlessFlatTreeItemProps,
+  TreeItemPersonaLayout,
+  Avatar,
 } from '@fluentui/react-components';
 import { MotionImperativeRef, createPresenceComponent } from '@fluentui/react-motions-preview';
 import { useEventCallback, useId, useIsomorphicLayoutEffect, usePrevious } from '@fluentui/react-utilities';
 import { VirtualItem, useVirtualizer } from '@tanstack/react-virtual';
 
-const allItemsNested: FlattenTreeItem<TreeItemProps>[] = [
+const allItemsNested: FlattenTreeItem<TreeItemProps & { height: number }>[] = [
   {
     value: 'folder 0',
     children: <TreeItemLayout>folder 0</TreeItemLayout>,
+    height: 32,
     subtree: Array.from({ length: 30 }, (_, i) => ({
       value: `folder 0 child ${i}`,
-      children: <TreeItemLayout>folder 0 child {i}</TreeItemLayout>,
+      children: (
+        <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
+          folder 0 child {i}
+        </TreeItemPersonaLayout>
+      ),
+      height: 56,
     })),
   },
   {
     value: 'folder 1',
     children: <TreeItemLayout>folder 1</TreeItemLayout>,
+    height: 32,
     subtree: [
       ...Array.from({ length: 20 }, (_, i) => ({
         value: `folder 1 sub-folder ${i}`,
         children: <TreeItemLayout>folder 1 sub-folder {i}</TreeItemLayout>,
+        height: 32,
         subtree: Array.from({ length: 10 }, (_, j) => ({
           value: `folder 1 sub-folder ${i} child ${j}`,
           children: (
-            <TreeItemLayout>
+            <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
               folder 1 sub-folder {i} child {j}
-            </TreeItemLayout>
+            </TreeItemPersonaLayout>
           ),
+          height: 56,
         })),
       })),
     ],
@@ -56,9 +67,15 @@ const allItemsNested: FlattenTreeItem<TreeItemProps>[] = [
   {
     value: 'folder 2',
     children: <TreeItemLayout>folder 2</TreeItemLayout>,
+    height: 32,
     subtree: Array.from({ length: 30 }, (_, i) => ({
       value: `folder 2 child ${i}`,
-      children: <TreeItemLayout>folder 2 child {i}</TreeItemLayout>,
+      children: (
+        <TreeItemPersonaLayout media={<Avatar image={{ alt: 'avatar' }} />} description="with description">
+          folder 2 child {i}
+        </TreeItemPersonaLayout>
+      ),
+      height: 56,
     })),
   },
 ];
@@ -164,6 +181,9 @@ const AnimatedFlatTreeItem: ForwardRefComponent<
   ) {
     renders = false;
   }
+
+  // TODO optimization: if an item becomes visible but does not render in virtual list, and it has slideAnimation. We can check the top position of the slide animation, if it is outside of the view port, no need to mount it at all.
+  // repro: expand folder 0, and use button to expand subfolders in folder 1, everything happens outside of viewport, no need to mount anything extra.
 
   return renders ? (
     <Fade visible={visible} unmountOnExit imperativeRef={motionRef}>
@@ -286,9 +306,11 @@ function useHeadlessFlatVirtualizedTree<Props extends HeadlessFlatTreeItemProps>
   props: Props[],
   {
     virtualizerOptions,
+    getItemSize,
     ...options
   }: HeadlessFlatTreeOptions & {
-    virtualizerOptions: Omit<Parameters<typeof useVirtualizer>[0], 'count'>;
+    virtualizerOptions: Omit<Parameters<typeof useVirtualizer>[0], 'count' | 'estimateSize'>;
+    getItemSize: (index: number) => number;
   },
 ): HeadlessFlatTree<Props> &
   Omit<ReturnType<typeof useVirtualizer>, 'getVirtualItems'> & {
@@ -300,8 +322,14 @@ function useHeadlessFlatVirtualizedTree<Props extends HeadlessFlatTreeItemProps>
 
   const items = React.useMemo(() => Array.from(headlessTree.items()), [headlessTree]);
 
+  const estimateSize = React.useCallback(
+    (index: number) => getItemSize(props.findIndex((item, _) => item.value === items[index].value)),
+    [getItemSize, props, items],
+  );
+
   const rowVirtualizer = useVirtualizer({
     count: items.length,
+    estimateSize,
     ...virtualizerOptions,
   });
 
@@ -360,18 +388,17 @@ export const FlatVirtualizedTreeAnimation = () => {
     setOpenItems(data.openItems);
   };
 
-  const getItemHeight = (index: number): number => 32;
-  // {
-  //   const item = visibleItems[index];
-  //   return item?.itemType === 'branch' ? 32 : 56;
-  // };
+  const getItemSize = (index: number): number => {
+    const item = flatTreeItems[index];
+    return item.height;
+  };
 
   const parentRef = React.useRef<HTMLDivElement>(null);
   const flatTree = useHeadlessFlatVirtualizedTree(flatTreeItems, {
     openItems,
     onOpenChange: handleOpenItemsChange,
+    getItemSize,
     virtualizerOptions: {
-      estimateSize: getItemHeight,
       getScrollElement: () => parentRef.current,
     },
   });
@@ -384,7 +411,7 @@ export const FlatVirtualizedTreeAnimation = () => {
 
   const getItemTop = (index: number): number => {
     // height of all items before this item
-    return visibleItems.slice(0, index).reduce((acc, item) => acc + getItemHeight(item.index), 0);
+    return visibleItems.slice(0, index).reduce((acc, item) => acc + item.getTreeItemProps().height, 0);
   };
 
   return (
