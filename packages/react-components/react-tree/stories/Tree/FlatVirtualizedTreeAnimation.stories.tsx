@@ -24,9 +24,10 @@ import {
   TreeItemPersonaLayout,
   Avatar,
 } from '@fluentui/react-components';
-import { MotionImperativeRef, createPresenceComponent } from '@fluentui/react-motions-preview';
+import { MotionImperativeRef, PresenceGroup, createPresenceComponent } from '@fluentui/react-motions-preview';
 import { useEventCallback, useId, useIsomorphicLayoutEffect, usePrevious } from '@fluentui/react-utilities';
 import { VirtualItem, useVirtualizer } from '@tanstack/react-virtual';
+import { PresenceGroupChildContext } from '../../../react-motions-preview/src/contexts/PresenceGroupChildContext';
 
 const allItemsNested: FlattenTreeItem<TreeItemProps & { height: number }>[] = [
   {
@@ -125,18 +126,24 @@ const Fade = createPresenceComponent({
   },
 });
 
+const getTop = (
+  items: HeadlessFlatTreeItem<HeadlessFlatTreeItemProps & { height: number }>[],
+  value?: TreeItemValue,
+) => {
+  const index = items.findIndex(item => item.value === value);
+  return index === -1 ? -1 : items.slice(0, index).reduce((acc, item) => acc + item.getTreeItemProps().height, 0);
+};
+
 const AnimatedFlatTreeItem: ForwardRefComponent<
-  Partial<TreeItemProps> & {
-    top: number;
+  Required<Pick<TreeItemProps, 'value'>> & {
     playbackRate: number;
-    rendersInVirtual: boolean;
   }
 > = React.forwardRef((props, ref) => {
-  const { top, playbackRate, rendersInVirtual, ...rest } = props;
-  const visible = top !== -1;
+  const { playbackRate, value } = props;
 
-  const prevTop = usePrevious(top);
-  const prevTreeItemProps = usePrevious(rest);
+  const itemContext = React.useContext(PresenceGroupChildContext);
+  const { visible, unmountOnExit, onExit } = { ...itemContext };
+  const [mounted, setMounted] = React.useState(visible);
 
   // Heads up!
   // This is optional and is intended solely to slow down the animations, making motions more visible in the examples.
@@ -147,14 +154,17 @@ const AnimatedFlatTreeItem: ForwardRefComponent<
 
   const treeItemRef = React.useRef<HTMLDivElement>(null);
 
-  const [slideAnimationFinished, setSlideAnimationFinished] = React.useState<boolean>(false);
+  // TODO stable function
+  const { visibleItems, prevVisibleItems } = React.useContext(VisibleItemsContext);
+  const top = getTop(visibleItems, value);
+  const prevTop = getTop(prevVisibleItems, value);
 
   const slideAnimationKeyframes: Keyframe[] | null = React.useMemo(
     () =>
-      visible && prevTop !== null && prevTop >= 0 && prevTop !== top
+      top >= 0 && prevTop !== null && prevTop >= 0 && prevTop !== top
         ? [{ top: `${prevTop}px` }, { top: `${top}px` }]
         : null,
-    [visible, prevTop, top],
+    [prevTop, top],
   );
 
   useIsomorphicLayoutEffect(() => {
@@ -165,48 +175,50 @@ const AnimatedFlatTreeItem: ForwardRefComponent<
         // TODO isReducedMotion check
       });
       slideAnimation.onfinish = () => {
-        setSlideAnimationFinished(true);
+        if (!visible && unmountOnExit) {
+          setMounted(false);
+          onExit?.();
+        }
       };
-    } else {
-      setSlideAnimationFinished(false);
     }
-  }, [slideAnimationKeyframes, DURATION, playbackRate]);
+  }, [slideAnimationKeyframes, playbackRate, visible, unmountOnExit, onExit]);
 
-  let renders = true;
-  if (
-    visible &&
-    !rendersInVirtual &&
-    (!slideAnimationKeyframes || // no slide animation is needed, unmount since it's rendersInVirtual is false
-      slideAnimationFinished) // slide animation is finished, need to unmount
-  ) {
-    renders = false;
+  if (!mounted) {
+    return null;
   }
 
-  // TODO optimization: if an item becomes visible but does not render in virtual list, and it has slideAnimation. We can check the top position of the slide animation, if it is outside of the view port, no need to mount it at all.
-  // repro: expand folder 0, and use button to expand subfolders in folder 1, everything happens outside of viewport, no need to mount anything extra.
+  let treeItemProps;
+  if (visible) {
+    const visibleItem = visibleItems.find(item => item.value === value);
+    const { style, ...rest } = visibleItem?.getTreeItemProps?.() ?? {};
+    treeItemProps = {
+      ...rest,
+      style: {
+        ...style,
+        position: 'absolute' as const,
+        width: '100%',
+        top: `${top}px`,
+      },
+    };
+  } else {
+    const prevVisibleItem = prevVisibleItems.find(item => item.value === value);
+    const { style, ...rest } = prevVisibleItem?.getTreeItemProps?.() ?? {};
+    treeItemProps = {
+      ...rest,
+      style: {
+        ...style,
+        position: 'absolute' as const,
+        width: '100%',
+        top: `${prevTop}px`,
+      },
+    };
+  }
 
-  return renders ? (
+  return (
     <Fade visible={visible} unmountOnExit imperativeRef={motionRef}>
-      <TreeItem
-        ref={treeItemRef}
-        {...(visible ? rest : prevTreeItemProps)}
-        itemType={rest.itemType ?? 'leaf'}
-        style={{
-          ...props.style,
-          position: 'absolute',
-          width: '100%',
-          top: `${top}px`,
-          // transition: `top ${DURATION / (playbackRate / 100)}ms`,
-          // before unmount, keep it as is and fade out
-          ...(!visible &&
-            prevTop !== null &&
-            prevTop >= 0 && {
-              top: `${prevTop}px`,
-            }),
-        }}
-      />
+      <TreeItem ref={treeItemRef} itemType="leaf" {...treeItemProps} />
     </Fade>
-  ) : null;
+  );
 });
 
 const Controls = ({
@@ -380,6 +392,14 @@ function useHeadlessFlatVirtualizedTree<Props extends HeadlessFlatTreeItemProps>
   };
 }
 
+const VisibleItemsContext = React.createContext<{
+  visibleItems: HeadlessFlatTreeItem<HeadlessFlatTreeItemProps & { height: number }>[];
+  prevVisibleItems: HeadlessFlatTreeItem<HeadlessFlatTreeItemProps & { height: number }>[];
+}>({
+  visibleItems: [],
+  prevVisibleItems: [],
+});
+
 export const FlatVirtualizedTreeAnimation = () => {
   const styles = useStyles();
 
@@ -404,15 +424,15 @@ export const FlatVirtualizedTreeAnimation = () => {
   });
 
   const visibleItems = Array.from(flatTree.items());
+  const prevVisibleItems = usePrevious(visibleItems);
+  const visibleItemsContextValue = React.useMemo(
+    () => ({ visibleItems, prevVisibleItems }),
+    [visibleItems, prevVisibleItems],
+  );
 
   const virtualItems = flatTree.getVirtualItems();
 
   const [playbackRate, setPlaybackRate] = React.useState<number>(10);
-
-  const getItemTop = (index: number): number => {
-    // height of all items before this item
-    return visibleItems.slice(0, index).reduce((acc, item) => acc + item.getTreeItemProps().height, 0);
-  };
 
   return (
     <div className={styles.container}>
@@ -424,23 +444,19 @@ export const FlatVirtualizedTreeAnimation = () => {
             className={styles.tree}
             style={{ height: `${flatTree.getTotalSize()}px` }}
           >
-            {flatTreeItems.map(flatTreeItem => {
-              const visibleItem = visibleItems.find(item => item.value === flatTreeItem.value);
-              const treeItemProps = visibleItem?.getTreeItemProps?.();
-
-              const virtualItem = virtualItems.find(item => item.value === flatTreeItem.value);
-
-              return (
-                <AnimatedFlatTreeItem
-                  {...treeItemProps}
-                  key={flatTreeItem.value}
-                  value={flatTreeItem.value}
-                  top={visibleItem ? getItemTop(visibleItem.index) : -1}
-                  playbackRate={playbackRate}
-                  rendersInVirtual={!!virtualItem}
-                />
-              );
-            })}
+            <VisibleItemsContext.Provider value={visibleItemsContextValue}>
+              <PresenceGroup>
+                {virtualItems.map(flatTreeItem => {
+                  return (
+                    <AnimatedFlatTreeItem
+                      key={flatTreeItem.value}
+                      value={flatTreeItem.value}
+                      playbackRate={playbackRate}
+                    />
+                  );
+                })}
+              </PresenceGroup>
+            </VisibleItemsContext.Provider>
           </FlatTree>
         )}
       </div>
